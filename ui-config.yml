@@ -5,10 +5,13 @@ antora:
   dir: www
   modules:
     - name: module-01
-      label: "Build and Run LAMP Container"
+      label: "Authenticate and Prepare"
       solveButton: true
     - name: module-02
-      label: "Configure LAMP Application"
+      label: "Build the Application"
+      solveButton: true
+    - name: module-03
+      label: "Test and Iterate"
       solveButton: true
 
 tabs:
