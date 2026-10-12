@@ -1,88 +1,50 @@
-= Build a LAMP Application Development Container
+= Build a LAMP Development Container
 
-== Overview
+Your LAMP application works on your laptop. Now get it to production.
 
-Learn how to build a database-backed LAMP (Linux, Apache, MariaDB, PHP) application using containers and volume mounts for iterative development. This hands-on lab teaches the container development workflow that application developers use before packaging applications for production deployment with Image Mode.
+Development needs speed - edit code, see changes instantly. Production needs stability - immutable, reproducible deploys.
 
-This is **Part 1** of a 2-lab series on **Image Mode for Application Developers**.
+This lab shows the development workflow. Lab 2 shows production packaging. Same app, different strategies.
 
-== What Makes This Lab Different?
+*Time: ~30 minutes | Difficulty: Intermediate*
 
-Existing Image Mode labs focus on **platform engineers** managing operating system images at scale with security and compliance tools. This lab series is designed for **application developers** who want to learn how to package and deploy their applications using Image Mode.
+== What You'll Build
 
-**You'll learn:**
+A database-backed LAMP application with:
+- MariaDB database
+- Apache web server
+- PHP application that queries the database
 
-* How to containerize a LAMP application for development
-* The difference between development (mutable) and production (immutable) workflows
-* How to use volume mounts for fast iterative development
-* How Image Mode fits into your application deployment pipeline
+You'll use volume mounts for rapid iteration - edit files on your host, changes appear instantly in the container.
 
-== Learning Objectives
+== Why This Lab
 
-By completing this lab, you will be able to:
+Most Image Mode labs focus on platform engineering - building OS images with monitoring tools and compliance baselines. This lab focuses on application development - packaging a database-backed web application from development to production.
 
-* Authenticate to Red Hat Container Registry using `podman login`
-* Build a LAMP stack development environment using RHEL Universal Base Image containers
-* Configure MariaDB databases with initialization scripts
-* Deploy PHP applications with Apache in containerized environments
-* Use volume mounts for iterative application development
-* Understand the development workflow before transitioning to production bootable images
+You'll write actual application code (SQL, PHP, Apache configs), not just install OS packages.
 
-== Target Audience
+== What You'll Learn
 
-This lab is designed for:
-
-* **Application developers** learning to containerize LAMP applications
-* **Software engineers** interested in Image Mode for application deployment
-* **DevOps engineers** exploring container development workflows
+- Authenticating to Red Hat's container registry
+- Building containers with systemd support (for running services)
+- Using volume mounts for fast development iteration
+- Creating database schemas and seed data
+- Writing PHP applications with database connectivity
+- Configuring Apache for your application
+- Understanding mutable workflows (dev) vs immutable (production)
 
 == Prerequisites
 
-Before starting this lab, you should have:
+- Basic container knowledge
+- Familiarity with LAMP stack concepts
+- Red Hat account (free at https://developers.redhat.com)
 
-* Basic understanding of Linux command line
-* Familiarity with containers and containerization concepts
-* Basic knowledge of LAMP stack components (Apache, MariaDB, PHP)
-* A Red Hat account (free) for registry access
+== Lab Flow
 
-If you don't have a Red Hat account, you can create one at https://sso.redhat.com/auth/realms/redhat-external/login-actions/registration
+**Module 1:** Authenticate to the registry, build a base LAMP container
 
-== Lab Duration
+**Module 2:** Add your application (database, PHP code, Apache config)
 
-**Total time:** Approximately 30 minutes
+**Module 3:** Test and iterate with instant updates
 
-* **Module 1:** Build and Run LAMP Container (~15 minutes)
-* **Module 2:** Configure LAMP Application (~15 minutes)
-
-== Lab Environment
-
-You will work in a **RHEL 10 build host** with the following pre-installed:
-
-* Podman 5.x
-* libvirt and KVM (for nested virtualization in Lab 2)
-* Development tools and template files
-
-All activities are performed via **command line** using standard podman and container tools.
-
-== What's Next After This Lab?
-
-After completing this lab, you'll have a working LAMP application running in a development container with volume-mounted files for fast iteration.
-
-**Lab 2: Package and Deploy a Bootable LAMP Image** teaches you how to:
-
-* Transform your development container into an immutable bootable image
-* Use Image Mode to package your application for production
-* Deploy your application as a virtual machine
-* Understand the differences between development and production workflows
-
-The two-lab progression mirrors real-world application development: build and test iteratively (Lab 1), then package for production deployment (Lab 2).
-
-== About the LAMP Application
-
-In this lab, you'll build a simple but realistic PHP application that:
-
-* Connects to a MariaDB database
-* Displays data from the database
-* Demonstrates the full LAMP stack working together
-
-The application is intentionally simple so you can focus on the **containerization and deployment workflow** rather than complex application logic.
+Let's start.

@@ -1,60 +1,51 @@
-= Module 2: Configure LAMP Application
+= Build the LAMP Application
 
-== Introduction
+You have a container with MariaDB, Apache, and PHP installed. Now add your application - database schema, PHP code, and web server configuration.
 
-In this module, you'll configure the LAMP stack inside your running container and build a database-backed PHP application. You'll create database schemas, write a PHP application that queries the database, and configure Apache to serve it.
+You'll use volume mounts to make files on your host instantly available inside the container. Edit a file, refresh your browser - no rebuild needed. This is the development workflow.
 
-**What you'll accomplish:**
+*Time: ~15 minutes*
 
-* Start and configure MariaDB
-* Create a database with sample data
-* Build a PHP application with database connectivity
-* Configure and start Apache
-* Test the complete LAMP stack
+== Run the Development Container
 
-**Time:** Approximately 15 minutes
+Start the container with a volume mount:
 
-== Step 1: Access the Container
-
-Your `lamp-dev` container is running from Module 1. Access its terminal:
-
-[source,bash]
+[source,bash,role=execute]
 ----
-podman exec -it lamp-dev /bin/bash
+podman run -d \
+  --name lamp-dev-container \
+  -p 8080:80 \
+  -v ~/lamp-dev/app:/app:z \
+  lamp-dev
 ----
 
-You're now **inside the container** (prompt shows `[root@<container-id> /]#`).
+This maps:
+- Port 8080 (host) → 80 (container) for web access
+- `~/lamp-dev/app` (host) → `/app` (container) so your code is instantly available
 
-**All steps in this module happen inside the container unless otherwise noted.**
+Verify the container is running:
 
-== Step 2: Start MariaDB
-
-Start the MariaDB database service:
-
-[source,bash]
+[source,bash,role=execute]
 ----
-systemctl start mariadb
+podman ps
 ----
 
-**Verify it's running:**
+*Expected output:*
 
-[source,bash]
 ----
-systemctl status mariadb
+CONTAINER ID  IMAGE       COMMAND          STATUS         PORTS                 NAMES
+a1b2c3d4e5f6  lamp-dev    /usr/sbin/init   Up 10 seconds  0.0.0.0:8080->80/tcp  lamp-dev-container
 ----
 
-Look for `Active: active (running)`.
+Your container is running. Files in `~/lamp-dev/app/` on your host are now at `/app` inside the container.
 
-Press `q` to exit the status view.
+== Create the Database Schema
 
-== Step 3: Create the Database Setup Script
+Create the SQL initialization script on your host:
 
-Create a SQL script in the volume-mounted `/app` directory:
-
-[source,bash]
+[source,bash,role=execute]
 ----
-cat > /app/db-setup.sql << 'EOF'
--- Create database and user
+cat > ~/lamp-dev/app/db-setup.sql << 'EOF'
 CREATE DATABASE IF NOT EXISTS hellodb;
 CREATE USER IF NOT EXISTS 'hellouser'@'localhost' IDENTIFIED BY 'SecurePassword';
 GRANT ALL PRIVILEGES ON hellodb.* TO 'hellouser'@'localhost';
@@ -62,73 +53,88 @@ FLUSH PRIVILEGES;
 
 USE hellodb;
 
--- Create table
 CREATE TABLE IF NOT EXISTS greetings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     message VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Insert sample data
-INSERT INTO greetings (message) VALUES ('Hello, World!');
-INSERT INTO greetings (message) VALUES ('Welcome to LAMP with Image Mode!');
+INSERT INTO greetings (message) VALUES
+    ('Hello, World!'),
+    ('Welcome to LAMP development!'),
+    ('Volume mounts make iteration fast.');
 EOF
 ----
 
-**What this script does:**
+This creates:
+- A database named `hellodb`
+- A user `hellouser` with password `SecurePassword`
+- A `greetings` table with sample messages
 
-* Creates a database called `hellodb`
-* Creates a user `hellouser` with password `SecurePassword`
-* Creates a `greetings` table
-* Inserts two sample messages
+The file is on your host at `~/lamp-dev/app/db-setup.sql`, but it's also instantly available inside the container at `/app/db-setup.sql`. That's the volume mount working.
 
-[NOTE]
-====
-Because you created this file in `/app/` (which is volume-mounted), it now exists on your **host** at `~/lamp-dev/bootc/app/db-setup.sql` too!
+== Initialize MariaDB
 
-This is the power of volume mounts - edit from either location.
-====
+Enter the container:
 
-== Step 4: Initialize the Database
+[source,bash,role=execute]
+----
+podman exec -it lamp-dev-container bash
+----
 
-Run the SQL script to set up your database:
+You're now inside the container. Start MariaDB:
 
-[source,bash]
+[source,bash,role=execute]
+----
+systemctl start mariadb
+----
+
+Initialize the database using your SQL script:
+
+[source,bash,role=execute]
 ----
 mariadb -u root < /app/db-setup.sql
 ----
 
-**Verify the database was created:**
+Verify the data loaded:
 
-[source,bash]
+[source,bash,role=execute]
 ----
-mariadb -u hellouser -pSecurePassword hellodb -e "SELECT * FROM greetings;"
-----
-
-**Expected output:**
-[source,text]
-----
-+----+---------------------------------+---------------------+
-| id | message                         | created_at          |
-+----+---------------------------------+---------------------+
-|  1 | Hello, World!                   | 2026-10-06 18:45:12 |
-|  2 | Welcome to LAMP with Image Mode!| 2026-10-06 18:45:12 |
-+----+---------------------------------+---------------------+
+mariadb -u hellouser -p'SecurePassword' hellodb -e "SELECT * FROM greetings;"
 ----
 
-✅ Database is configured with sample data!
+*Expected output:*
 
-== Step 5: Create the PHP Application
-
-Create a PHP application that queries the database:
-
-[source,bash]
 ----
-cat > /app/index.php << 'EOF'
++----+----------------------------------+---------------------+
+| id | message                          | created_at          |
++----+----------------------------------+---------------------+
+|  1 | Hello, World!                    | 2025-01-15 10:30:00 |
+|  2 | Welcome to LAMP development!     | 2025-01-15 10:30:00 |
+|  3 | Volume mounts make iteration fast| 2025-01-15 10:30:00 |
++----+----------------------------------+---------------------+
+----
+
+Your database has data. Exit the container:
+
+[source,bash,role=execute]
+----
+exit
+----
+
+You're back on your host. Next: create the PHP application that queries this database.
+
+== Create the PHP Application
+
+Create the PHP file on your host:
+
+[source,bash,role=execute]
+----
+cat > ~/lamp-dev/app/index.php << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>
-    <title>LAMP Application - Development Container</title>
+    <title>LAMP Application - Development Mode</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -152,10 +158,9 @@ cat > /app/index.php << 'EOF'
     </style>
 </head>
 <body>
-    <h1>LAMP Application - Development Container</h1>
+    <h1>LAMP Application - Development Mode</h1>
 
     <?php
-    // Database connection
     $host = '127.0.0.1';
     $db   = 'hellodb';
     $user = 'hellouser';
@@ -166,7 +171,6 @@ cat > /app/index.php << 'EOF'
     $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
     try {
@@ -181,46 +185,51 @@ cat > /app/index.php << 'EOF'
             echo "</div>";
         }
     } catch (\PDOException $e) {
-        echo "<div style='color: red; padding: 20px; background: #ffebee; border-radius: 5px;'>";
-        echo "<strong>Database Error:</strong> Could not connect to database.<br>";
-        echo "<small>Check that MariaDB is running and initialized with db-setup.sql</small>";
+        echo "<div style='color: red; padding: 20px; background: #ffebee;'>";
+        echo "<strong>Database Error:</strong> Could not connect.<br>";
+        echo "<small>Check MariaDB service is running</small>";
         echo "</div>";
     }
     ?>
 
     <div class='info'>
-        <strong>Environment:</strong> Development Container<br>
-        <strong>Workflow:</strong> Volume-mounted files (mutable)<br>
-        <strong>Container:</strong> <?php echo gethostname(); ?>
+        <strong>Environment:</strong> Development (volume mounts)<br>
+        <strong>Workflow:</strong> Mutable (edit files on host, changes appear instantly)<br>
+        <strong>Host:</strong> <?php echo gethostname(); ?>
     </div>
 </body>
 </html>
 EOF
 ----
 
-**What this PHP application does:**
+This PHP application:
+- Connects to the MariaDB database
+- Queries the `greetings` table
+- Displays messages in styled HTML
 
-* Connects to the MariaDB database
-* Queries the `greetings` table for all messages
-* Displays them in styled HTML
-* Shows errors if database connection fails
+You created this on your host, but it's already inside the container at `/app/index.php` thanks to the volume mount.
 
-== Step 6: Deploy the Application to Apache
+== Deploy the Application to Apache
 
-Copy the PHP script to Apache's document root:
+Enter the container again:
 
-[source,bash]
+[source,bash,role=execute]
+----
+podman exec -it lamp-dev-container bash
+----
+
+Copy the PHP file to Apache's web root:
+
+[source,bash,role=execute]
 ----
 cp /app/index.php /var/www/html/
 ----
 
-== Step 7: Configure Apache
+Create an Apache virtual host configuration:
 
-Create an Apache VirtualHost configuration:
-
-[source,bash]
+[source,bash,role=execute]
 ----
-cat > /app/myapp.conf << 'EOF'
+cat > /etc/httpd/conf.d/myapp.conf << 'EOF'
 <VirtualHost *:80>
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/html
@@ -237,206 +246,74 @@ cat > /app/myapp.conf << 'EOF'
 EOF
 ----
 
-Deploy the configuration:
+Configure SELinux to allow Apache to connect to the database:
 
-[source,bash]
+[source,bash,role=execute]
 ----
-cp /app/myapp.conf /etc/httpd/conf.d/
+setsebool -P httpd_can_network_connect_db on
 ----
 
-== Step 8: Start Apache
+Start Apache:
 
-Start the Apache web server:
-
-[source,bash]
+[source,bash,role=execute]
 ----
 systemctl start httpd
 ----
 
-**Verify Apache is running:**
+Verify Apache is running:
 
-[source,bash]
+[source,bash,role=execute]
 ----
-systemctl status httpd
-----
-
-Look for `Active: active (running)`.
-
-Press `q` to exit.
-
-== Step 9: Test Inside the Container
-
-Test the application from inside the container:
-
-[source,bash]
-----
-curl http://127.0.0.1
+systemctl status httpd --no-pager
 ----
 
-You should see HTML output with your database messages!
+*Expected output (key line):*
 
-**Exit the container:**
+----
+   Active: active (running) since...
+----
 
-[source,bash]
+Exit the container:
+
+[source,bash,role=execute]
 ----
 exit
 ----
 
-You're back on the **host** (prompt shows `[rhel@buildhost]`).
+Your application is deployed. Now test it.
 
-== Step 10: Test from the Host
+== Test the Application
 
-The container mapped port 8080 on the host to port 80 in the container. Test from the host:
+Test from the command line:
 
-[source,bash]
+[source,bash,role=execute]
 ----
 curl http://localhost:8080
 ----
 
-You should see the same HTML output!
+You'll see HTML output with your greeting messages. The database query worked.
+
+Now open your browser and navigate to:
+
+----
+http://localhost:8080
+----
+
+You should see a styled page with three messages from the database:
+- "Hello, World!"
+- "Welcome to LAMP development!"
+- "Volume mounts make iteration fast."
 
 [TIP]
 ====
-In a browser (if available), you could visit `http://localhost:8080` to see the fully styled application.
+*Try editing the PHP file on your host:*
+
+[source,bash]
+----
+nano ~/lamp-dev/app/index.php
+----
+
+Change the `<h1>` text, save, then refresh your browser. The change appears instantly - no rebuild needed. That's the power of volume mounts for development.
 ====
 
-== Step 11: Try the Development Workflow
-
-Demonstrate the power of volume mounts. Add a new message **from the host**:
-
-[source,bash]
-----
-echo "INSERT INTO greetings (message) VALUES ('Added from host!');" | \
-  podman exec -i lamp-dev mariadb -u hellouser -pSecurePassword hellodb
-----
-
-**Test again:**
-
-[source,bash]
-----
-curl http://localhost:8080 | grep "Added from host"
-----
-
-You should see your new message! The application is live and responding to changes.
-
-== What You've Accomplished
-
-✅ **Configured** MariaDB with initialization scripts
-✅ **Created** a database-backed PHP application
-✅ **Deployed** the application with Apache
-✅ **Tested** the full LAMP stack working together
-✅ **Demonstrated** the volume mount development workflow
-
-**You now have a complete, working LAMP development environment!**
-
-== Understanding the Development Workflow
-
-**Files on Host** (`~/lamp-dev/bootc/app/`):
-[source,text]
-----
-app/
-├── db-setup.sql    ← Database schema
-├── index.php       ← PHP application
-└── myapp.conf      ← Apache config
-----
-
-**Volume Mount** (`-v ~/lamp-dev/bootc/app:/app:z`):
-
-* Files exist in both locations simultaneously
-* Edit on host → changes immediately available in container
-* Perfect for fast iterative development
-
-**Container Runtime:**
-
-* Files deployed from `/app/` to their runtime locations
-* Services running (MariaDB, Apache)
-* Application accessible on port 8080
-
-== Development vs. Production
-
-**What you just built (Development):**
-
-* **Mutable** - Files can change anytime via volume mount
-* **Fast iteration** - Edit, refresh, test
-* **Great for development** - Quick feedback loop
-
-**What you'll build in Lab 2 (Production):**
-
-* **Immutable** - Files copied into image at build time
-* **No runtime changes** - Rebuild image to update
-* **Great for production** - Consistent, repeatable deployments
-
-This contrast is a key concept in modern application deployment.
-
-== Next Steps
-
-**Congratulations!** You've built a complete LAMP development environment with:
-
-* Database-backed application
-* Volume-mounted files for fast iteration
-* Full LAMP stack in a container
-
-**In Lab 2: Package and Deploy a Bootable LAMP Image**, you'll:
-
-* Transform this into a **production bootable image**
-* Use **COPY** instead of volume mounts (immutable)
-* Build a **VM disk image** with `bootc-image-builder`
-* Deploy as a **virtual machine**
-* Understand production deployment with Image Mode
-
-The development workflow you learned here (fast, mutable) prepares you for the production workflow (immutable, deployable).
-
-== Cleanup (Optional)
-
-**Stop the container:**
-[source,bash]
-----
-podman stop lamp-dev
-----
-
-**Remove the container:**
-[source,bash]
-----
-podman rm lamp-dev
-----
-
-**Rebuild and restart (common during development):**
-[source,bash]
-----
-podman rm -f lamp-dev
-podman run -d --name lamp-dev -p 8080:80 -v ~/lamp-dev/bootc/app:/app:z lamp-dev-image
-----
-
-== Troubleshooting
-
-**MariaDB won't start:**
-[source,bash]
-----
-podman exec lamp-dev journalctl -u mariadb
-----
-
-**Apache won't start:**
-[source,bash]
-----
-podman exec lamp-dev journalctl -u httpd
-----
-
-**Application shows database error:**
-[source,bash]
-----
-# Check MariaDB is running
-podman exec lamp-dev systemctl status mariadb
-
-# Check database was initialized
-podman exec lamp-dev mariadb -u root -e "SHOW DATABASES;"
-----
-
-**Can't access on port 8080:**
-[source,bash]
-----
-# Verify container is running
-podman ps
-
-# Check port mapping
-podman port lamp-dev
-----
+You've built a working LAMP application using the development workflow - volume mounts for fast iteration. Next module: test edge cases and see the mutable workflow in action.

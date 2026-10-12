@@ -1,229 +1,109 @@
-= Module 1: Build and Run LAMP Container
+= Authenticate and Prepare Environment
 
-== Introduction
+Most Image Mode labs focus on platform engineering - building OS images with monitoring tools and compliance baselines. This lab focuses on application development - packaging a database-backed LAMP application from development to production.
 
-In this module, you'll authenticate to Red Hat Container Registry and build a LAMP (Linux, Apache, MariaDB, PHP) development container. You'll learn how to use **volume mounts** to make your application files available inside the container for fast iterative development.
+You'll start by authenticating to Red Hat's container registry to pull base images, then build a development container for your LAMP application.
 
-**What you'll accomplish:**
+*Time: ~8 minutes*
 
-* Authenticate to Red Hat Container Registry
-* Build a container image with the LAMP stack
-* Run the container with a volume mount
-* Access the container to prepare for application setup
+== Authenticate to Red Hat Container Registry
 
-**Time:** Approximately 15 minutes
+Pull RHEL base images from Red Hat's registry:
 
-== Step 1: Authenticate to Red Hat Container Registry
-
-Before you can pull Red Hat base images, you need to authenticate to `registry.redhat.io`.
-
-[source,bash]
+[source,bash,role=execute]
 ----
 podman login registry.redhat.io
 ----
 
-When prompted, enter your Red Hat account credentials:
-
-* **Username:** Your Red Hat account email or username
-* **Password:** Your Red Hat account password
-
-**Expected output:**
-[source,text]
-----
-Login Succeeded!
-----
-
-[TIP]
-====
-If you don't have a Red Hat account, create one (free) at https://sso.redhat.com/auth/realms/redhat-external/login-actions/registration
-====
-
-== Step 2: Review the Development Environment
-
-Your environment has been pre-configured with a LAMP development directory structure. Let's explore it:
-
-[source,bash]
-----
-cd ~/lamp-dev/bootc
-ls -la
-----
-
-You should see:
-
-* `Containerfile` - Container definition for the LAMP stack
-* `app/` - Directory for your application files (mounted as a volume)
-* Several `.example` files - Templates you can use
-
-**View the Containerfile:**
-
-[source,bash]
-----
-cat Containerfile
-----
-
-This Containerfile:
-
-* Starts from `registry.redhat.io/ubi10/ubi-init` (RHEL Universal Base Image with systemd)
-* Installs MariaDB, Apache (httpd), and PHP
-* Enables services to start automatically
-* Exposes port 80 for web traffic
-
-== Step 3: Build the Development Container Image
-
-Build your LAMP development container image:
-
-[source,bash]
-----
-podman build -f Containerfile -t lamp-dev-image .
-----
-
-**What's happening:**
-
-* Podman pulls the UBI 10 base image from Red Hat's registry
-* Installs the LAMP stack packages (MariaDB, Apache, PHP)
-* Creates a container image named `lamp-dev-image`
-
-**Expected:** This takes 2-3 minutes. You'll see package installation output.
+When prompted, enter your Red Hat account credentials.
 
 [NOTE]
 ====
-**Why UBI (Universal Base Image)?**
-
-UBI is Red Hat's freely redistributable base image. It's similar to the RHEL bootc images you'll use in Lab 2, but designed for development containers rather than bootable systems.
+If you don't have a Red Hat account, create one at https://developers.redhat.com (free).
 ====
 
-== Step 4: Run the Container with Volume Mount
+Verify authentication by pulling the base image:
 
-Now run the container with a **volume mount** that makes your `app/` directory available inside the container:
-
-[source,bash]
+[source,bash,role=execute]
 ----
-podman run -d --name lamp-dev \
-  -p 8080:80 \
-  -v ~/lamp-dev/bootc/app:/app:z \
-  lamp-dev-image
+podman pull registry.redhat.io/ubi10/ubi-init
 ----
 
-**Understanding the command:**
+You'll see layers downloading. This base image includes systemd support, which lets you run services (MariaDB, Apache) inside containers just like on a regular RHEL host.
 
-* `-d` - Run in detached (background) mode
-* `--name lamp-dev` - Name the container "lamp-dev"
-* `-p 8080:80` - Map host port 8080 to container port 80 (Apache)
-* `-v ~/lamp-dev/bootc/app:/app:z` - **Volume mount** your app directory
-  ** Files in `~/lamp-dev/bootc/app/` on the host appear at `/app/` in the container
-  ** `:z` tells SELinux to relabel files so the container can access them
-* `lamp-dev-image` - The image you just built
+== Create the Development Workspace
 
-**Verify the container is running:**
+Set up your application directory:
 
-[source,bash]
+[source,bash,role=execute]
 ----
-podman ps
+mkdir -p ~/lamp-dev/app
+cd ~/lamp-dev
 ----
 
-You should see your `lamp-dev` container in the list with status "Up".
+This workspace will hold:
+- `Containerfile` - defines your LAMP container
+- `app/` - your application files (SQL, PHP, Apache config)
 
-[IMPORTANT]
-====
-**Volume Mounts = Development Workflow**
+Unlike OS-focused Image Mode labs where you install monitoring tools, you're building an actual application. The `app/` directory will contain code you write, not just configuration.
 
-With volume mounts, you can edit files on the host (where you have your favorite editor) and immediately see changes in the container. This is perfect for development but **not** for production.
+== Review the Development Containerfile
 
-In Lab 2, you'll learn the production approach: **copy** files into an immutable bootable image.
-====
+A Containerfile is already provided. Review it:
 
-== Step 5: Access the Container Terminal
-
-You need to configure services inside the container. Access its shell:
-
-[source,bash]
+[source,bash,role=execute]
 ----
-podman exec -it lamp-dev /bin/bash
+cat ~/lamp-dev/Containerfile
 ----
 
-You're now **inside the container**. Notice the prompt changes to `[root@<container-id> /]#`.
+*Expected output:*
 
-**Verify you're in the container:**
-
-[source,bash]
+[source,dockerfile]
 ----
-hostname
-----
+FROM registry.redhat.io/ubi10/ubi-init
 
-You should see a container ID (not "buildhost").
+# Install LAMP stack
+RUN dnf install -y mariadb-server httpd php php-mysqlnd && dnf clean all
 
-**Check that the volume mount is working:**
+# Enable services
+RUN systemctl enable mariadb httpd
 
-[source,bash]
-----
-ls -la /app/
-----
+# Expose web port
+EXPOSE 80
 
-You should see the `.example` files from your host's `~/lamp-dev/bootc/app/` directory.
-
-**Exit the container for now:**
-
-[source,bash]
-----
-exit
+CMD ["/usr/sbin/init"]
 ----
 
-You're back on the host (prompt shows `[rhel@buildhost]`).
+This does three things:
+1. Starts from a RHEL base image with systemd support
+2. Installs MariaDB, Apache, and PHP
+3. Enables services to start when the container boots
 
-== What You've Accomplished
+Notice what's *not* here - no application files. You'll add those using volume mounts (next module).
 
-✅ **Authenticated** to Red Hat Container Registry
-✅ **Built** a LAMP container image with MariaDB, Apache, and PHP
-✅ **Ran** the container with a volume mount for development
-✅ **Verified** you can access the container and see mounted files
+== Build the Development Container
 
-**Your container is now running** and ready for application configuration!
+Build the container image:
 
-== Understanding Volume Mounts
-
-The volume mount (`-v ~/lamp-dev/bootc/app:/app:z`) creates a **live connection** between:
-
-**Host:** `~/lamp-dev/bootc/app/`
-↕
-**Container:** `/app/`
-
-Any file you create in either location appears in both. This lets you:
-
-* Edit files on the host with your favorite editor
-* See changes immediately inside the container
-* Test quickly without rebuilding images
-
-This is the **development workflow**. In Module 2, you'll create application files using this workflow.
-
-== Next Steps
-
-In **Module 2**, you'll:
-
-* Start and configure MariaDB inside the container
-* Create a database with sample data
-* Build a PHP application that queries the database
-* Configure Apache to serve the application
-* Test the complete LAMP stack
-
-Your container is ready and waiting!
-
-== Troubleshooting
-
-**Container won't start:**
-[source,bash]
+[source,bash,role=execute]
 ----
-podman logs lamp-dev
+podman build -t lamp-dev .
 ----
 
-**Check all containers:**
-[source,bash]
+You'll see installation steps as packages are installed. This takes ~2 minutes.
+
+Once complete, verify the image exists:
+
+[source,bash,role=execute]
 ----
-podman ps -a
+podman images lamp-dev
 ----
 
-**Remove and restart container:**
-[source,bash]
+*Expected output:*
+
 ----
-podman rm -f lamp-dev
-podman run -d --name lamp-dev -p 8080:80 -v ~/lamp-dev/bootc/app:/app:z lamp-dev-image
+REPOSITORY          TAG         IMAGE ID      CREATED         SIZE
+localhost/lamp-dev  latest      a1b2c3d4e5f6  2 minutes ago   850 MB
 ----
+
+You now have a base LAMP container. Next module: add your application and start the services.

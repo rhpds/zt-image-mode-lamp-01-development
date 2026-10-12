@@ -1,0 +1,211 @@
+= Test and Iterate on Your Application
+
+Your LAMP application works - database queries, PHP logic, and Apache all running. Now see the real advantage of volume mounts: instant iteration.
+
+In this module, you'll make changes to your application and see them appear immediately without rebuilding the container. This is the development workflow.
+
+*Time: ~7 minutes*
+
+== Verify End-to-End Functionality
+
+Test the full stack from outside the container:
+
+[source,bash,role=execute]
+----
+curl -s http://localhost:8080 | grep -A 1 "Hello, World"
+----
+
+*Expected output:*
+
+----
+<strong>Hello, World!</strong><br>
+<small>Created: 2025-01-15 10:30:00</small>
+----
+
+The database query worked. MariaDB → PHP → Apache all connected.
+
+Check the container logs to see Apache handling requests:
+
+[source,bash,role=execute]
+----
+podman logs lamp-dev-container --tail 5
+----
+
+You'll see Apache access logs showing your curl requests.
+
+== Add a New Greeting to the Database
+
+Enter the container:
+
+[source,bash,role=execute]
+----
+podman exec -it lamp-dev-container bash
+----
+
+Insert a new message:
+
+[source,bash,role=execute]
+----
+mariadb -u hellouser -p'SecurePassword' hellodb -e \
+  "INSERT INTO greetings (message) VALUES ('Development iteration is fast!');"
+----
+
+Query the table to verify:
+
+[source,bash,role=execute]
+----
+mariadb -u hellouser -p'SecurePassword' hellodb -e "SELECT * FROM greetings;"
+----
+
+*Expected output (4 rows now):*
+
+----
++----+----------------------------------+---------------------+
+| id | message                          | created_at          |
++----+----------------------------------+---------------------+
+|  1 | Hello, World!                    | 2025-01-15 10:30:00 |
+|  2 | Welcome to LAMP development!     | 2025-01-15 10:30:00 |
+|  3 | Volume mounts make iteration fast| 2025-01-15 10:30:00 |
+|  4 | Development iteration is fast!   | 2025-01-15 10:32:15 |
++----+----------------------------------+---------------------+
+----
+
+Exit the container:
+
+[source,bash,role=execute]
+----
+exit
+----
+
+Refresh your browser at `http://localhost:8080`. The new message appears immediately - no restart needed.
+
+== Modify the Application Code
+
+Here's where volume mounts show their value. Edit the PHP file on your host:
+
+[source,bash,role=execute]
+----
+cat >> ~/lamp-dev/app/index.php << 'EOF'
+
+<!-- Modified during development -->
+<div style="background: #fff3cd; padding: 10px; margin-top: 20px; border-radius: 5px;">
+    <strong>Note:</strong> This application uses volume mounts for development.
+    Changes to this file appear instantly without rebuilding the container.
+</div>
+EOF
+----
+
+This appends a yellow note box to the bottom of your page.
+
+No rebuild. No restart. Just refresh your browser at `http://localhost:8080`.
+
+The yellow note box appears immediately. Your change went from:
+1. Host file (`~/lamp-dev/app/index.php`)
+2. Through the volume mount (`/app/index.php` inside container)
+3. Copied to Apache's web root (`/var/www/html/index.php`)
+4. Served to your browser
+
+Wait - step 3 is a problem. You manually copied the file earlier. If you edit `~/lamp-dev/app/index.php`, it updates `/app/index.php` inside the container, but Apache still serves the old copy from `/var/www/html/`.
+
+== Fix the Workflow: Serve Directly from the Volume Mount
+
+Enter the container:
+
+[source,bash,role=execute]
+----
+podman exec -it lamp-dev-container bash
+----
+
+Update Apache's configuration to serve directly from `/app`:
+
+[source,bash,role=execute]
+----
+cat > /etc/httpd/conf.d/myapp.conf << 'EOF'
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /app
+
+    <Directory /app>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog /var/log/httpd/error_log
+    CustomLog /var/log/httpd/access_log combined
+</VirtualHost>
+EOF
+----
+
+The only change: `DocumentRoot /app` instead of `DocumentRoot /var/www/html`.
+
+Restart Apache to load the new config:
+
+[source,bash,role=execute]
+----
+systemctl restart httpd
+----
+
+Exit the container:
+
+[source,bash,role=execute]
+----
+exit
+----
+
+Now edits to `~/lamp-dev/app/index.php` appear instantly. Try it:
+
+[source,bash,role=execute]
+----
+sed -i 's/Development Mode/Development Mode - LIVE EDITING/' ~/lamp-dev/app/index.php
+----
+
+Refresh your browser. The title changed from "Development Mode" to "Development Mode - LIVE EDITING" with no rebuild, no restart.
+
+This is the mutable workflow - perfect for development, but not for production.
+
+== Understand What You Built
+
+You've created a development environment where:
+- **Files live on your host** (`~/lamp-dev/app/`)
+- **Volume mounts make them available inside the container** (`/app/`)
+- **Apache serves directly from the mount**
+- **Edits appear instantly**
+
+This is fast, flexible, and great for development. But it has problems for production:
+- Files are mutable (someone could SSH in and edit them)
+- No versioning (what version is deployed?)
+- No reproducibility (every container could be different)
+
+In Lab 2, you'll transform this into an immutable production deployment - files baked into the image, packaged as a bootable VM.
+
+== Stop the Development Container
+
+Stop and remove the container:
+
+[source,bash,role=execute]
+----
+podman stop lamp-dev-container
+podman rm lamp-dev-container
+----
+
+Your application files remain on your host at `~/lamp-dev/app/`. You can rebuild the container anytime with the same files.
+
+[TIP]
+====
+*Development workflow summary:*
+
+1. Volume mounts (`-v ~/lamp-dev/app:/app:z`)
+2. Mutable files (edit anytime, changes appear instantly)
+3. Fast iteration (no rebuild needed)
+4. Perfect for development
+
+*What's next:*
+
+Lab 2 teaches the production workflow:
+- COPY directives (files baked into image at build time)
+- Immutable deployments (can't edit files after build)
+- Bootable images (entire OS + application packaged as one)
+====
+
+You've completed Lab 1. You built a database-backed LAMP application using the development workflow with volume mounts. In Lab 2, you'll package this same application for production deployment.

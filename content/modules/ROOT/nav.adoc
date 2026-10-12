@@ -1,3 +1,4 @@
 * xref:index.adoc[Overview]
-* xref:module-01.adoc[Module 1: Build and Run LAMP Container]
-* xref:module-02.adoc[Module 2: Configure LAMP Application]
+* xref:module-01.adoc[Module 1: Authenticate and Prepare]
+* xref:module-02.adoc[Module 2: Build the Application]
+* xref:module-03.adoc[Module 3: Test and Iterate]
