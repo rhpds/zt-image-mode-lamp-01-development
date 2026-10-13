@@ -325,7 +325,7 @@ curl http://localhost:8080
 
 You'll see the full HTML with your greeting messages from the database. The database query worked!
 
-Now view the application in your browser. In the Showroom interface, look for the **Console** tab at the top of the page. Click on the **buildhost** web console link to access the application at port 8080.
+Now view the application in your browser. Click the **LAMP Application** tab at the top of the page.
 
 You should see a styled page with three messages from the database:
 - "Hello, World!"
@@ -348,7 +348,7 @@ Find the line `<h1>LAMP Application - Development Mode</h1>` and change it to `<
 3. Press `Esc` to exit insert mode
 4. Type `:wq` and press Enter to save and quit
 
-Then refresh your browser (Console tab → buildhost web console). The title changes instantly - no rebuild needed. That's the power of volume mounts for development.
+Then refresh the **LAMP Application** tab. The title changes instantly - no rebuild needed. That's the power of volume mounts for development.
 ====
 
 You've built a working LAMP application using the development workflow - volume mounts for fast iteration. Next module: test edge cases and see the mutable workflow in action.

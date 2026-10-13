@@ -19,3 +19,6 @@ virtualmachines:
         value: "bastions"
     networks:
       - default
+    services:
+      - name: webapp
+        port: 8080

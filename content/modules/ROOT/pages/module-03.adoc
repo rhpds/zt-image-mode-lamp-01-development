@@ -31,7 +31,13 @@ Check the container logs to see Apache handling requests:
 podman logs lamp-dev-container --tail 5
 ----
 
-You'll see Apache access logs showing your curl requests.
+*Expected output (example):*
+
+----
+127.0.0.1 - - [13/Oct/2026:16:20:45 +0000] "GET / HTTP/1.1" 200 1234
+----
+
+You'll see Apache access logs showing your curl requests. If no logs appear yet, that's fine - Apache may not have logged recent activity.
 
 == Add a New Greeting to the Database
 
@@ -46,29 +52,33 @@ Insert a new message:
 
 [source,bash,role=execute]
 ----
-mariadb -u hellouser -p'SecurePassword' hellodb -e \
-  "INSERT INTO greetings (message) VALUES ('Development iteration is fast!');"
+mariadb -u hellouser -pSecurePassword hellodb -e "INSERT INTO greetings (message) VALUES ('Development iteration is fast!');"
 ----
 
 Query the table to verify:
 
 [source,bash,role=execute]
 ----
-mariadb -u hellouser -p'SecurePassword' hellodb -e "SELECT * FROM greetings;"
+mariadb -u hellouser -pSecurePassword hellodb -e "SELECT * FROM greetings;"
 ----
 
 *Expected output (4 rows now):*
 
 ----
-+----+----------------------------------+---------------------+
-| id | message                          | created_at          |
-+----+----------------------------------+---------------------+
-|  1 | Hello, World!                    | 2025-01-15 10:30:00 |
-|  2 | Welcome to LAMP development!     | 2025-01-15 10:30:00 |
-|  3 | Volume mounts make iteration fast| 2025-01-15 10:30:00 |
-|  4 | Development iteration is fast!   | 2025-01-15 10:32:15 |
-+----+----------------------------------+---------------------+
++----+------------------------------------+---------------------+
+| id | message                            | created_at          |
++----+------------------------------------+---------------------+
+|  1 | Hello, World!                      | 2026-10-13 16:18:13 |
+|  2 | Welcome to LAMP development!       | 2026-10-13 16:18:13 |
+|  3 | Volume mounts make iteration fast. | 2026-10-13 16:18:13 |
+|  4 | Development iteration is fast!     | 2026-10-13 16:18:14 |
++----+------------------------------------+---------------------+
 ----
+
+[NOTE]
+====
+The timestamps will show your actual current time, not the dates above.
+====
 
 Exit the container:
 
@@ -77,7 +87,7 @@ Exit the container:
 exit
 ----
 
-Refresh your browser at `http://localhost:8080`. The new message appears immediately - no restart needed.
+Refresh the **LAMP Application** tab. The new message appears immediately - no restart needed.
 
 == Modify the Application Code
 
@@ -97,13 +107,13 @@ EOF
 
 This appends a yellow note box to the bottom of your page.
 
-No rebuild. No restart. Just refresh your browser at `http://localhost:8080`.
+No rebuild. No restart. Just refresh the **LAMP Application** tab.
 
 The yellow note box appears immediately. Your change went from:
 1. Host file (`~/lamp-dev/app/index.php`)
 2. Through the volume mount (`/app/index.php` inside container)
 3. Copied to Apache's web root (`/var/www/html/index.php`)
-4. Served to your browser
+4. Served by Apache
 
 Wait - step 3 is a problem. You manually copied the file earlier. If you edit `~/lamp-dev/app/index.php`, it updates `/app/index.php` inside the container, but Apache still serves the old copy from `/var/www/html/`.
 
@@ -160,7 +170,7 @@ Now edits to `~/lamp-dev/app/index.php` appear instantly. Try it:
 sed -i 's/Development Mode/Development Mode - LIVE EDITING/' ~/lamp-dev/app/index.php
 ----
 
-Refresh your browser. The title changed from "Development Mode" to "Development Mode - LIVE EDITING" with no rebuild, no restart.
+Refresh the **LAMP Application** tab. The title changed from "Development Mode" to "Development Mode - LIVE EDITING" with no rebuild, no restart.
 
 This is the mutable workflow - perfect for development, but not for production.
 

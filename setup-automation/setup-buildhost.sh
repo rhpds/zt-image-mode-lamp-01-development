@@ -43,9 +43,9 @@ cat <<EOF> /home/rhel/.config/containers/auth.json
 EOF
 chown -R rhel:rhel /home/rhel/.config
 
-# Pull base image so it's available
+# Pull base image so it's available for rhel user
 echo "Pulling UBI base image..." >> /tmp/progress.log
-podman pull registry.redhat.io/ubi10/ubi-init:latest
+su - rhel -c "podman pull registry.redhat.io/ubi10/ubi-init:latest" >> /tmp/progress.log 2>&1
 
 # Create directory structure for LAMP development
 echo "Creating LAMP development directory structure..." >> /tmp/progress.log
