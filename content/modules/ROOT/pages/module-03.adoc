@@ -63,7 +63,7 @@ Insert a new message:
 
 [source,bash,role=execute]
 ----
-mariadb -u hellouser -pSecurePassword hellodb -e 'INSERT INTO greetings (message) VALUES ("Development iteration is fast!");'
+mariadb -u hellouser -pSecurePassword hellodb -e "INSERT INTO greetings (message) VALUES ('Iteration is instant');"
 ----
 
 Query the table to verify:
@@ -79,10 +79,10 @@ mariadb -u hellouser -pSecurePassword hellodb -e "SELECT * FROM greetings;"
 +----+------------------------------------+---------------------+
 | id | message                            | created_at          |
 +----+------------------------------------+---------------------+
-|  1 | Hello, World!                      | 2026-10-13 16:18:13 |
-|  2 | Welcome to LAMP development!       | 2026-10-13 16:18:13 |
-|  3 | Volume mounts make iteration fast. | 2026-10-13 16:18:13 |
-|  4 | Development iteration is fast!     | 2026-10-13 16:18:14 |
+|  1 | Hello, World!                      | 2026-10-13 19:06:17 |
+|  2 | Welcome to LAMP development!       | 2026-10-13 19:06:17 |
+|  3 | Volume mounts make iteration fast. | 2026-10-13 19:06:17 |
+|  4 | Iteration is instant               | 2026-10-13 19:08:42 |
 +----+------------------------------------+---------------------+
 ----
 
