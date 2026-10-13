@@ -18,10 +18,7 @@ tabs:
   - name: ">_ terminal"
     url: /wetty
   - name: "LAMP Application"
-    url: https://webapp-sandbox-${guid}-zt-rhelbu.apps.ocpvdev01.dal13.infra.demo.redhat.com
-    visibleOnModules:
-      - module-02
-      - module-03
+    url: https://webapp-${guid}.apps.ocpvdev01.rhdp.net
   - name: "Red Hat Container Registry"
     url: https://catalog.redhat.com/software/containers/explore
     external: true
