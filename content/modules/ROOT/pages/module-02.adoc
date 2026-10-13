@@ -356,23 +356,9 @@ You should see a styled page with three messages from the database:
 .Working LAMP Application
 image::lamp-app-working.png[LAMP application showing database messages,width=800]
 
-[TIP]
+You've built a working LAMP application using the development workflow with volume mounts!
+
+[NOTE]
 ====
-*Try editing the PHP file on your host:*
-
-[source,bash]
-----
-vi ~/lamp-dev/app/index.php
-----
-
-Find the line `<h1>LAMP Application - Development Mode</h1>` and change it to `<h1>LAMP Application - LIVE EDITING</h1>`:
-
-1. Press `i` to enter insert mode
-2. Navigate to "Development Mode" and change it to "LIVE EDITING"
-3. Press `Esc` to exit insert mode
-4. Type `:wq` and press Enter to save and quit
-
-Then refresh the **LAMP Application** tab. The title changes instantly - no rebuild needed. That's the power of volume mounts for development.
+**What's next:** Module 3 will show you how to modify your application and see changes appear instantly. You'll discover an important gotcha about volume mounts and learn to fix it - that's the real power of the development workflow.
 ====
-
-You've built a working LAMP application using the development workflow - volume mounts for fast iteration. Next module: test edge cases and see the mutable workflow in action.
