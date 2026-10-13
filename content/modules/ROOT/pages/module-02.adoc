@@ -354,7 +354,7 @@ You should see a styled page with three messages from the database:
 - "Volume mounts make iteration fast."
 
 .Working LAMP Application
-image::lamp-app-working.png[LAMP application showing database messages,width=800]
+image::lamp-app-working.png[LAMP application showing database messages,width=1200]
 
 You've built a working LAMP application! The database, PHP, and Apache are all connected and serving content.
 
