@@ -17,6 +17,36 @@ echo "Setting up libvirt for nested virtualization..." >> /tmp/progress.log
 systemctl enable --now libvirtd
 sed -i 's/hosts:\s\+ files/& libvirt libvirt_guest/' /etc/nsswitch.conf
 
+# Set up registry authentication for root user
+echo "Configuring registry authentication..." >> /tmp/progress.log
+mkdir -p ~/.config/containers
+cat <<EOF> ~/.config/containers/auth.json
+{
+    "auths": {
+      "registry.redhat.io": {
+        "auth": "${REGISTRY_PULL_TOKEN}"
+      }
+    }
+  }
+EOF
+
+# Set up registry authentication for rhel user
+mkdir -p /home/rhel/.config/containers
+cat <<EOF> /home/rhel/.config/containers/auth.json
+{
+    "auths": {
+      "registry.redhat.io": {
+        "auth": "${REGISTRY_PULL_TOKEN}"
+      }
+    }
+  }
+EOF
+chown -R rhel:rhel /home/rhel/.config
+
+# Pull base image so it's available
+echo "Pulling UBI base image..." >> /tmp/progress.log
+podman pull registry.redhat.io/ubi10/ubi-init:latest
+
 # Create directory structure for LAMP development
 echo "Creating LAMP development directory structure..." >> /tmp/progress.log
 mkdir -p /home/rhel/lamp-dev/bootc/app

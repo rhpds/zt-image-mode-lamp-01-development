@@ -6,7 +6,7 @@ Development needs speed - edit code, see changes instantly. Production needs sta
 
 This lab shows the development workflow. Lab 2 shows production packaging. Same app, different strategies.
 
-*Time: ~30 minutes | Difficulty: Intermediate*
+*Time: ~28 minutes | Difficulty: Intermediate*
 
 == What You'll Build
 
@@ -25,7 +25,6 @@ You'll write actual application code (SQL, PHP, Apache configs), not just instal
 
 == What You'll Learn
 
-- Authenticating to Red Hat's container registry
 - Building containers with systemd support (for running services)
 - Using volume mounts for fast development iteration
 - Creating database schemas and seed data
@@ -37,11 +36,10 @@ You'll write actual application code (SQL, PHP, Apache configs), not just instal
 
 - Basic container knowledge
 - Familiarity with LAMP stack concepts
-- Red Hat account (free at https://developers.redhat.com)
 
 == Lab Flow
 
-**Module 1:** Authenticate to the registry, build a base LAMP container
+**Module 1:** Verify your environment, build a base LAMP container
 
 **Module 2:** Add your application (database, PHP code, Apache config)
 

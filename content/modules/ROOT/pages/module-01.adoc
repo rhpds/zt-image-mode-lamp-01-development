@@ -1,49 +1,93 @@
-= Authenticate and Prepare Environment
+= Prepare Your Development Environment
 
 Most Image Mode labs focus on platform engineering - building OS images with monitoring tools and compliance baselines. This lab focuses on application development - packaging a database-backed LAMP application from development to production.
 
-You'll start by authenticating to Red Hat's container registry to pull base images, then build a development container for your LAMP application.
+You'll build a development container for your LAMP application using volume mounts for fast iteration.
 
-*Time: ~8 minutes*
+*Time: ~6 minutes*
 
-== Authenticate to Red Hat Container Registry
+== Verify Registry Authentication
 
-Pull RHEL base images from Red Hat's registry:
+Your environment is pre-authenticated to Red Hat's container registry. Verify the authentication is working:
 
 [source,bash,role=execute]
 ----
 podman login registry.redhat.io
 ----
 
-When prompted, enter your Red Hat account credentials.
+*Expected output:*
 
-[NOTE]
-====
-If you don't have a Red Hat account, create one at https://developers.redhat.com (free).
-====
+----
+Authenticating with existing credentials for registry.redhat.io
+Existing credentials are valid. Already logged in to registry.redhat.io
+----
 
-Verify authentication by pulling the base image:
+This shows you're already authenticated. The environment uses a pre-configured token, so you don't need to enter credentials manually.
+
+Check the authentication file:
 
 [source,bash,role=execute]
 ----
-podman pull registry.redhat.io/ubi10/ubi-init
+cat ~/.config/containers/auth.json | jq
 ----
 
-You'll see layers downloading. This base image includes systemd support, which lets you run services (MariaDB, Apache) inside containers just like on a regular RHEL host.
+*Expected output:*
 
-== Create the Development Workspace
+[source,json]
+----
+{
+  "auths": {
+    "registry.redhat.io": {
+      "auth": "..."
+    }
+  }
+}
+----
 
-Set up your application directory:
+This file stores your authentication token for `registry.redhat.io`.
+
+== Verify Base Image is Available
+
+The UBI (Universal Base Image) was pre-pulled during setup. Verify it's ready:
 
 [source,bash,role=execute]
 ----
-mkdir -p ~/lamp-dev/app
+podman images | grep ubi-init
+----
+
+*Expected output:*
+
+----
+registry.redhat.io/ubi10/ubi-init   latest   ...   ...   ...
+----
+
+This base image includes systemd support, which lets you run services (MariaDB, Apache) inside containers just like on a regular RHEL host.
+
+== Review Your Workspace
+
+Your development directory structure is already set up. Check what's available:
+
+[source,bash,role=execute]
+----
 cd ~/lamp-dev
+ls -la
 ----
 
-This workspace will hold:
+*Expected output:*
+
+----
+total ...
+drwxr-xr-x.  3 rhel rhel   ... .
+drwx------. 14 rhel rhel   ... ..
+drwxr-xr-x.  2 rhel rhel   ... app
+-rw-r--r--.  1 rhel rhel   ... Containerfile
+-rw-r--r--.  1 rhel rhel   ... README.md
+----
+
+This workspace holds:
 - `Containerfile` - defines your LAMP container
 - `app/` - your application files (SQL, PHP, Apache config)
+- `README.md` - quick reference guide
 
 Unlike OS-focused Image Mode labs where you install monitoring tools, you're building an actual application. The `app/` directory will contain code you write, not just configuration.
 
@@ -53,7 +97,7 @@ A Containerfile is already provided. Review it:
 
 [source,bash,role=execute]
 ----
-cat ~/lamp-dev/Containerfile
+cat Containerfile
 ----
 
 *Expected output:*
