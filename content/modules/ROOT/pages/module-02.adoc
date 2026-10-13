@@ -2,7 +2,7 @@
 
 You have a container with MariaDB, Apache, and PHP installed. Now add your application - database schema, PHP code, and web server configuration.
 
-You'll use volume mounts to make files on your host instantly available inside the container. Edit a file, refresh your browser - no rebuild needed. This is the development workflow.
+You'll use volume mounts to make files on your host instantly available inside the container. Edit a file, refresh the **LAMP Application** tab - no rebuild needed. This is the development workflow.
 
 *Time: ~15 minutes*
 
@@ -325,7 +325,7 @@ curl http://localhost:8080
 
 You'll see the full HTML with your greeting messages from the database. The database query worked!
 
-Now view the application in your browser. Click the **LAMP Application** tab at the top of the page.
+Now click the **LAMP Application** tab at the top of the page to view the running application.
 
 You should see a styled page with three messages from the database:
 - "Hello, World!"
