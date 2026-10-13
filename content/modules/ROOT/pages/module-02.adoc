@@ -2,6 +2,14 @@
 
 You have a container with MariaDB, Apache, and PHP installed. Now add your application - database schema, PHP code, and web server configuration.
 
+== What You're Building With
+
+**LAMP** = Linux + Apache + MariaDB + PHP:
+
+- **MariaDB**: Database server (stores your data in tables)
+- **Apache**: Web server (serves HTTP requests on port 80)
+- **PHP**: Application language (connects to database, generates HTML)
+
 You'll use volume mounts to make files on your host instantly available inside the container. Edit a file, refresh the **LAMP Application** tab - no rebuild needed. This is the development workflow.
 
 *Time: ~15 minutes*
@@ -127,11 +135,16 @@ Your database has data. Exit the container:
 exit
 ----
 
-You're back on your host. Next: create the PHP application that queries this database.
+You're back on your host (you should see `[rhel@buildhost ~]$` prompt). Next: create the PHP application that queries this database.
 
 == Create the PHP Application
 
-Create the PHP file on your host:
+Create the PHP file on your host (not inside the container):
+
+[NOTE]
+====
+Run this command from your host terminal (`[rhel@buildhost ~]$`), not inside the container.
+====
 
 [source,bash,role=execute]
 ----

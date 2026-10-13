@@ -15,14 +15,15 @@ Test the full stack from outside the container:
 curl -s http://localhost:8080 | grep -A 1 "Hello, World"
 ----
 
-*Expected output:*
+*Expected output (excerpt):*
 
 ----
-<strong>Hello, World!</strong><br>
-<small>Created: 2025-01-15 10:30:00</small>
+<h2>Messages from Database:</h2><div class='message'><strong>Hello, World!</strong><br>
+<small>Created: 2026-10-13 16:00:11</small></div><div class='message'><strong>Welcome to LAMP development!</strong><br>
+<small>Created: 2026-10-13 16:00:11</small></div><div class='message'><strong>Volume mounts make iteration fast.</strong><br>
 ----
 
-The database query worked. MariaDB → PHP → Apache all connected.
+You'll see HTML with all three messages. The database query worked - MariaDB → PHP → Apache all connected.
 
 Check the container logs to see Apache handling requests:
 
@@ -109,13 +110,16 @@ This appends a yellow note box to the bottom of your page.
 
 No rebuild. No restart. Just refresh the **LAMP Application** tab.
 
-The yellow note box appears immediately. Your change went from:
-1. Host file (`~/lamp-dev/app/index.php`)
-2. Through the volume mount (`/app/index.php` inside container)
-3. Copied to Apache's web root (`/var/www/html/index.php`)
-4. Served by Apache
+**But wait - did the yellow box appear?** Probably not. Here's why:
 
-Wait - step 3 is a problem. You manually copied the file earlier. If you edit `~/lamp-dev/app/index.php`, it updates `/app/index.php` inside the container, but Apache still serves the old copy from `/var/www/html/`.
+Your change went through these steps:
+1. Host file updated: `~/lamp-dev/app/index.php` ✓
+2. Volume mount reflects change: `/app/index.php` inside container ✓
+3. Apache serves from: `/var/www/html/index.php` ❌ (old copy!)
+
+The problem: In Module 2, you manually copied the file to `/var/www/html/`. Your edit updated the volume-mounted file at `/app/`, but Apache still serves the old copy from `/var/www/html/`.
+
+This is a common development workflow mistake. Let's fix it.
 
 == Fix the Workflow: Serve Directly from the Volume Mount
 
