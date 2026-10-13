@@ -30,14 +30,20 @@ The UBI (Universal Base Image) was pre-pulled during setup. Verify it's ready:
 
 [source,bash,role=execute]
 ----
-podman images | grep ubi-init
+podman images
 ----
 
-*Expected output:*
+*Expected output (look for ubi-init):*
 
 ----
-registry.redhat.io/ubi10/ubi-init   latest   ...   ...   ...
+REPOSITORY                           TAG      IMAGE ID      CREATED      SIZE
+registry.redhat.io/ubi10/ubi-init    latest   <image-id>    <date>       <size>
 ----
+
+[NOTE]
+====
+The IMAGE ID, CREATED date, and SIZE will vary. Look for the `registry.redhat.io/ubi10/ubi-init` repository name.
+====
 
 This base image includes systemd support, which lets you run services (MariaDB, Apache) inside containers just like on a regular RHEL host.
 

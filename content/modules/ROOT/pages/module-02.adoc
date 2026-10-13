@@ -258,9 +258,15 @@ Configure SELinux to allow Apache to connect to the database:
 setsebool -P httpd_can_network_connect_db on 2>/dev/null || echo "SELinux not available in container (this is fine)"
 ----
 
+*Expected output:*
+
+----
+SELinux not available in container (this is fine)
+----
+
 [NOTE]
 ====
-Inside containers, SELinux may not be available. If you see "command not found", that's expected - SELinux is managed by the host system.
+Inside containers, SELinux may not be available. The command either silently succeeds (no output) or prints the message above. Either way, you're good to continue.
 ====
 
 Start Apache:
@@ -319,11 +325,7 @@ curl http://localhost:8080
 
 You'll see the full HTML with your greeting messages from the database. The database query worked!
 
-Now open your browser and navigate to:
-
-----
-http://localhost:8080
-----
+Now view the application in your browser. In the Showroom interface, look for the **Console** tab at the top of the page. Click on the **buildhost** web console link to access the application at port 8080.
 
 You should see a styled page with three messages from the database:
 - "Hello, World!"
@@ -339,7 +341,14 @@ You should see a styled page with three messages from the database:
 vi ~/lamp-dev/app/index.php
 ----
 
-Change the `<h1>` text (press `i` to insert, edit the text, press `Esc`, then type `:wq` to save and quit), then refresh your browser. The change appears instantly - no rebuild needed. That's the power of volume mounts for development.
+Find the line `<h1>LAMP Application - Development Mode</h1>` and change it to `<h1>LAMP Application - LIVE EDITING</h1>`:
+
+1. Press `i` to enter insert mode
+2. Navigate to "Development Mode" and change it to "LIVE EDITING"
+3. Press `Esc` to exit insert mode
+4. Type `:wq` and press Enter to save and quit
+
+Then refresh your browser (Console tab → buildhost web console). The title changes instantly - no rebuild needed. That's the power of volume mounts for development.
 ====
 
 You've built a working LAMP application using the development workflow - volume mounts for fast iteration. Next module: test edge cases and see the mutable workflow in action.
