@@ -17,15 +17,24 @@ project:
 spec:
   title: "Build a LAMP Application Development Container"
   learning_objectives:
-    - "Authenticate to Red Hat Container Registry using podman login"
+    - "Verify pre-configured registry authentication for Red Hat Container Registry"
     - "Build a LAMP (Linux, Apache, MariaDB, PHP) application development environment using RHEL UBI containers"
     - "Configure MariaDB databases with initialization scripts"
     - "Deploy PHP applications with Apache in containerized environments"
     - "Use volume mounts for iterative application development"
+    - "Understand mutable development workflows versus immutable production workflows"
   modules:
     - id: module-01
-      title: "Build LAMP Development Container"
-      duration_min: 30
+      title: "Prepare Your Development Environment"
+      duration_min: 6
+      status: not_started
+    - id: module-02
+      title: "Build the LAMP Application"
+      duration_min: 15
+      status: not_started
+    - id: module-03
+      title: "Test and Iterate"
+      duration_min: 7
       status: not_started
   environment:
     platform: "rhel-vms"
@@ -80,10 +89,14 @@ approval_checklist:
     prerequisites_verifiable: false
     assessment_strategy: ""
     catalog_gap: "Existing Image Mode labs focus on platform engineers managing OS images at scale with security/compliance (e.g., 'Image Mode is the best mode' - 180min, operations-focused). This lab series targets application developers learning to package their applications with Image Mode. This is Part 1: development workflow with containers and volumes. Part 2 teaches production packaging as bootable images. Unique value: teaches the volume mount (mutable dev) vs COPY (immutable prod) transformation that ops-focused labs don't cover."
-    design_overview: "A beginner lab teaching application developers how to build LAMP applications in containers using volume mounts for iterative development. Students authenticate to Red Hat Container Registry, build a development container with MariaDB/Apache/PHP, create a database-backed PHP application, and test it. Emphasizes hands-on CLI workflow. Part 1 of 2-lab series; Part 2 covers production packaging with bootable containers."
+    design_overview: "A beginner lab teaching application developers how to build LAMP applications in containers using volume mounts for iterative development. Students verify pre-configured registry authentication, build a development container with MariaDB/Apache/PHP, create a database-backed PHP application using volume mounts, and test the mutable development workflow. Emphasizes hands-on CLI workflow with 80% executable commands. Part 1 of 2-lab series; Part 2 covers production packaging with bootable containers."
     module_summaries:
-      - title: "Build LAMP Development Container"
-        overview: "Authenticate to registry.redhat.io, build a LAMP stack container using UBI, configure MariaDB and Apache, create a PHP application with database connectivity, and test using volume-mounted development workflow."
+      - title: "Prepare Your Development Environment"
+        overview: "Verify pre-configured registry authentication, review workspace structure, examine the development Containerfile, and build the base LAMP container image with MariaDB, Apache, and PHP."
+      - title: "Build the LAMP Application"
+        overview: "Run container with volume mounts, create database schema and seed data, write PHP application with database connectivity, deploy to Apache, configure SELinux, and test the application."
+      - title: "Test and Iterate"
+        overview: "Verify end-to-end functionality, add database records, modify application code on host, demonstrate instant updates via volume mounts, and understand mutable development workflow versus immutable production."
     rcars_overlap_pct: 0
     rcars_top_matches: []
     rejections: []
