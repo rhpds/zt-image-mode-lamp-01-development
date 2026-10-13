@@ -33,9 +33,14 @@ podman ps
 *Expected output:*
 
 ----
-CONTAINER ID  IMAGE       COMMAND          STATUS         PORTS                 NAMES
-a1b2c3d4e5f6  lamp-dev    /usr/sbin/init   Up 10 seconds  0.0.0.0:8080->80/tcp  lamp-dev-container
+CONTAINER ID  IMAGE                      COMMAND     CREATED         STATUS         PORTS                 NAMES
+f690fd5d5234  localhost/lamp-dev:latest  /sbin/init  22 seconds ago  Up 22 seconds  0.0.0.0:8080->80/tcp  lamp-dev-container
 ----
+
+[NOTE]
+====
+The CONTAINER ID will be different each time you run the container. This is normal - each container gets a unique ID.
+====
 
 Your container is running. Files in `~/lamp-dev/app/` on your host are now at `/app` inside the container.
 
@@ -250,8 +255,13 @@ Configure SELinux to allow Apache to connect to the database:
 
 [source,bash,role=execute]
 ----
-setsebool -P httpd_can_network_connect_db on
+setsebool -P httpd_can_network_connect_db on 2>/dev/null || echo "SELinux not available in container (this is fine)"
 ----
+
+[NOTE]
+====
+Inside containers, SELinux may not be available. If you see "command not found", that's expected - SELinux is managed by the host system.
+====
 
 Start Apache:
 
@@ -291,7 +301,23 @@ Test from the command line:
 curl http://localhost:8080
 ----
 
-You'll see HTML output with your greeting messages. The database query worked.
+*Expected output (excerpt):*
+
+----
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LAMP Application - Development Mode</title>
+...
+<h2>Messages from Database:</h2>
+<div class='message'><strong>Hello, World!</strong><br>
+<div class='message'><strong>Welcome to LAMP development!</strong><br>
+<div class='message'><strong>Volume mounts make iteration fast.</strong><br>
+...
+</html>
+----
+
+You'll see the full HTML with your greeting messages from the database. The database query worked!
 
 Now open your browser and navigate to:
 

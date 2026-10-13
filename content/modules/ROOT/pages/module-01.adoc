@@ -54,12 +54,12 @@ ls -la
 *Expected output:*
 
 ----
-total ...
-drwxr-xr-x.  3 rhel rhel   ... .
-drwx------. 14 rhel rhel   ... ..
-drwxr-xr-x.  2 rhel rhel   ... app
--rw-r--r--.  1 rhel rhel   ... Containerfile
--rw-r--r--.  1 rhel rhel   ... README.md
+total 8
+drwxr-xr-x. 3 rhel rhel   55 Oct 13 13:59 .
+drwx------. 7 rhel rhel  135 Oct 13 13:59 ..
+-rw-r--r--. 1 rhel rhel  356 Oct 13 13:59 Containerfile
+-rw-r--r--. 1 rhel rhel 1426 Oct 13 13:59 README.md
+drwxr-xr-x. 2 rhel rhel   85 Oct 13 13:59 app
 ----
 
 This workspace holds:
@@ -82,18 +82,22 @@ cat Containerfile
 
 [source,dockerfile]
 ----
-FROM registry.redhat.io/ubi10/ubi-init
+# Development LAMP Stack Container
+# Uses UBI for development with volume mounts
+FROM registry.redhat.io/ubi10/ubi-init:latest
 
 # Install LAMP stack
-RUN dnf install -y mariadb-server httpd php php-mysqlnd && dnf clean all
+RUN dnf install -y mariadb-server httpd php php-mysqlnd && \
+    dnf clean all
 
 # Enable services
 RUN systemctl enable mariadb httpd
 
-# Expose web port
+# Expose Apache port
 EXPOSE 80
 
-CMD ["/usr/sbin/init"]
+# Use systemd as init
+CMD ["/sbin/init"]
 ----
 
 This does three things:
@@ -125,7 +129,12 @@ podman images lamp-dev
 
 ----
 REPOSITORY          TAG         IMAGE ID      CREATED         SIZE
-localhost/lamp-dev  latest      a1b2c3d4e5f6  2 minutes ago   850 MB
+localhost/lamp-dev  latest      107092991f49  14 seconds ago  487 MB
 ----
+
+[NOTE]
+====
+The IMAGE ID, CREATED time, and SIZE will vary based on when you built the image and current package versions.
+====
 
 You now have a base LAMP container. Next module: add your application and start the services.
