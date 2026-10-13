@@ -18,7 +18,7 @@ tabs:
   - name: ">_ terminal"
     url: /wetty
   - name: "LAMP Application"
-    url: http://webapp-${guid}.${domain}
+    url: https://webapp-sandbox-${guid}-zt-rhelbu.apps.ocpvdev01.dal13.infra.demo.redhat.com
     visibleOnModules:
       - module-02
       - module-03

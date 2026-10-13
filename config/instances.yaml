@@ -22,10 +22,14 @@ virtualmachines:
     services:
       - name: webapp
         ports:
-          - name: http
+          - port: 8080
             protocol: TCP
-            port: 8080
             targetPort: 8080
-        route:
-          enabled: true
-          targetPort: http
+            name: http
+    routes:
+      - name: webapp
+        host: webapp
+        service: webapp
+        targetPort: 8080
+        tls: true
+        tls_termination: Edge
