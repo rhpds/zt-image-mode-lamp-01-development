@@ -19,6 +19,9 @@ tabs:
     url: /wetty
   - name: "LAMP Application"
     url: http://webapp-${guid}.${domain}
+    visibleOnModules:
+      - module-02
+      - module-03
   - name: "Red Hat Container Registry"
     url: https://catalog.redhat.com/software/containers/explore
     external: true
