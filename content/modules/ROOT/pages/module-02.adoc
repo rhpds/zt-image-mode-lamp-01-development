@@ -353,6 +353,9 @@ You should see a styled page with three messages from the database:
 - "Welcome to LAMP development!"
 - "Volume mounts make iteration fast."
 
+.Working LAMP Application
+image::lamp-app-working.png[LAMP application showing database messages]
+
 [TIP]
 ====
 *Try editing the PHP file on your host:*
