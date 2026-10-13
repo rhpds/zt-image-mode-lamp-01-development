@@ -1,35 +1,34 @@
 #!/bin/bash
-# Validation script for Module 01: Build LAMP Development Container
-# This validates that the lab environment is ready and learner has completed basic tasks
+# Validation script for Module 01: Prepare Your Development Environment
+# Returns 0 if module objectives are met, non-zero otherwise
 
 set -e
 
 echo "Validating Module 01..." >> /tmp/progress.log
 
 # Check if LAMP development directory exists
-if [ ! -d /home/rhel/lamp-dev/bootc ]; then
+if [ ! -d /home/rhel/lamp-dev ]; then
     echo "FAIL: LAMP development directory not found" >> /tmp/progress.log
     exit 1
 fi
 
-# Check if template files exist
-if [ ! -f /home/rhel/lamp-dev/bootc/Containerfile ]; then
+# Check if Containerfile exists
+if [ ! -f /home/rhel/lamp-dev/Containerfile ]; then
     echo "FAIL: Containerfile not found" >> /tmp/progress.log
     exit 1
 fi
 
-# Check if libvirt is running
-if ! systemctl is-active --quiet libvirtd; then
-    echo "FAIL: libvirtd is not running" >> /tmp/progress.log
+# Check if app directory exists
+if [ ! -d /home/rhel/lamp-dev/app ]; then
+    echo "FAIL: app directory not found" >> /tmp/progress.log
     exit 1
 fi
 
-# Check if podman is available
-if ! command -v podman &> /dev/null; then
-    echo "FAIL: podman not installed" >> /tmp/progress.log
+# Check if lamp-dev image was built
+if ! su - rhel -c "podman images lamp-dev" | grep -q lamp-dev; then
+    echo "FAIL: lamp-dev image not built" >> /tmp/progress.log
     exit 1
 fi
 
-# Success
-echo "Module 01 validation passed" >> /tmp/progress.log
+echo "PASS: Module 01 validation successful" >> /tmp/progress.log
 exit 0

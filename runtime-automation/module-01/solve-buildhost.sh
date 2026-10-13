@@ -1,29 +1,17 @@
 #!/bin/bash
-# Solve script for Module 01: Build LAMP Development Container
-# This demonstrates the complete workflow for the learner
+# Solve script for Module 01: Prepare Your Development Environment
+# This runs when the user clicks "Solve"
 
 set -e
 
 echo "Solving Module 01..." >> /tmp/progress.log
 
-# Ensure we're the rhel user
-USER=rhel
-HOME=/home/rhel
+# Verify registry authentication
+su - rhel -c "podman login registry.redhat.io" >> /tmp/progress.log 2>&1 || true
 
-# Navigate to LAMP development directory
-cd $HOME/lamp-dev/bootc
+# Build the development container as rhel user
+cd /home/rhel/lamp-dev
+su - rhel -c "cd ~/lamp-dev && podman build -t lamp-dev ." >> /tmp/progress.log 2>&1
 
-# Create application files from templates
-cp app/db-setup.sql.example app/db-setup.sql
-cp app/index.php.example app/index.php
-cp app/myapp.conf.example app/myapp.conf
-
-echo "Application files created" >> /tmp/progress.log
-
-# Note: We don't actually build/run the container in solve because:
-# 1. podman login requires interactive authentication (learner does this)
-# 2. This is meant as a reference, not automated completion
-# The validation checks that the environment is ready
-
-echo "Module 01 solve completed (files ready)" >> /tmp/progress.log
+echo "Module 01 solve complete - LAMP development container built" >> /tmp/progress.log
 exit 0

@@ -49,12 +49,12 @@ podman pull registry.redhat.io/ubi10/ubi-init:latest
 
 # Create directory structure for LAMP development
 echo "Creating LAMP development directory structure..." >> /tmp/progress.log
-mkdir -p /home/rhel/lamp-dev/bootc/app
+mkdir -p /home/rhel/lamp-dev/app
 chown -R rhel:rhel /home/rhel/lamp-dev
 
 # Create template Containerfile for development
 echo "Creating template Containerfile..." >> /tmp/progress.log
-cat <<'EOF' > /home/rhel/lamp-dev/bootc/Containerfile
+cat <<'EOF' > /home/rhel/lamp-dev/Containerfile
 # Development LAMP Stack Container
 # Uses UBI for development with volume mounts
 FROM registry.redhat.io/ubi10/ubi-init:latest
@@ -72,11 +72,11 @@ EXPOSE 80
 # Use systemd as init
 CMD ["/sbin/init"]
 EOF
-chown rhel:rhel /home/rhel/lamp-dev/bootc/Containerfile
+chown rhel:rhel /home/rhel/lamp-dev/Containerfile
 
 # Create example database setup script
 echo "Creating example database setup script..." >> /tmp/progress.log
-cat <<'EOF' > /home/rhel/lamp-dev/bootc/app/db-setup.sql.example
+cat <<'EOF' > /home/rhel/lamp-dev/app/db-setup.sql.example
 -- Example database setup
 -- This creates a simple database with one table
 
@@ -96,11 +96,11 @@ CREATE TABLE IF NOT EXISTS greetings (
 INSERT INTO greetings (message) VALUES ('Hello, World!');
 INSERT INTO greetings (message) VALUES ('Welcome to LAMP with Image Mode!');
 EOF
-chown rhel:rhel /home/rhel/lamp-dev/bootc/app/db-setup.sql.example
+chown rhel:rhel /home/rhel/lamp-dev/app/db-setup.sql.example
 
 # Create example PHP application
 echo "Creating example PHP application..." >> /tmp/progress.log
-cat <<'EOF' > /home/rhel/lamp-dev/bootc/app/index.php.example
+cat <<'EOF' > /home/rhel/lamp-dev/app/index.php.example
 <!DOCTYPE html>
 <html>
 <head>
@@ -151,11 +151,11 @@ cat <<'EOF' > /home/rhel/lamp-dev/bootc/app/index.php.example
 </body>
 </html>
 EOF
-chown rhel:rhel /home/rhel/lamp-dev/bootc/app/index.php.example
+chown rhel:rhel /home/rhel/lamp-dev/app/index.php.example
 
 # Create example Apache configuration
 echo "Creating example Apache configuration..." >> /tmp/progress.log
-cat <<'EOF' > /home/rhel/lamp-dev/bootc/app/myapp.conf.example
+cat <<'EOF' > /home/rhel/lamp-dev/app/myapp.conf.example
 # Apache VirtualHost configuration for LAMP application
 <VirtualHost *:80>
     ServerAdmin webmaster@localhost
@@ -171,7 +171,7 @@ cat <<'EOF' > /home/rhel/lamp-dev/bootc/app/myapp.conf.example
     CustomLog /var/log/httpd/access_log combined
 </VirtualHost>
 EOF
-chown rhel:rhel /home/rhel/lamp-dev/bootc/app/myapp.conf.example
+chown rhel:rhel /home/rhel/lamp-dev/app/myapp.conf.example
 
 # Generate SSH keys for VM access (will be used in Lab 2, but create now)
 echo "Generating SSH keys for VM access..." >> /tmp/progress.log
@@ -186,7 +186,7 @@ cat <<'EOF' > /home/rhel/lamp-dev/README.md
 ## Directory Structure
 
 ```
-~/lamp-dev/bootc/
+~/lamp-dev/
 ├── Containerfile           # Container definition
 └── app/                    # Application files (mounted as volume)
     ├── db-setup.sql        # Database initialization
@@ -212,7 +212,7 @@ You can copy these or create your own from scratch during the lab.
 
 2. Build the development image:
    ```bash
-   cd ~/lamp-dev/bootc
+   cd ~/lamp-dev
    podman build -f Containerfile -t lamp-dev-image .
    ```
 
@@ -220,7 +220,7 @@ You can copy these or create your own from scratch during the lab.
    ```bash
    podman run -d --name lamp-dev \
      -p 8080:80 \
-     -v ~/lamp-dev/bootc/app:/app:z \
+     -v ~/lamp-dev/app:/app:z \
      lamp-dev-image
    ```
 
