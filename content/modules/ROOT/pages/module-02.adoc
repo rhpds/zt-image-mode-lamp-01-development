@@ -235,32 +235,25 @@ This PHP application:
 
 You created this on your host, but it's already inside the container at `/app/index.php` thanks to the volume mount.
 
-== Deploy the Application to Apache
+== Configure Apache to Serve the Application
 
-Enter the container again:
+Enter the container:
 
 [source,bash,role=execute]
 ----
 podman exec -it lamp-dev-container bash
 ----
 
-Copy the PHP file to Apache's web root:
-
-[source,bash,role=execute]
-----
-cp /app/index.php /var/www/html/
-----
-
-Create an Apache virtual host configuration:
+Configure Apache to serve directly from the volume mount. This way, any changes you make on your host appear immediately:
 
 [source,bash,role=execute]
 ----
 cat > /etc/httpd/conf.d/myapp.conf << 'EOF'
 <VirtualHost *:80>
     ServerAdmin webmaster@localhost
-    DocumentRoot /var/www/html
+    DocumentRoot /app
 
-    <Directory /var/www/html>
+    <Directory /app>
         Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
@@ -271,6 +264,8 @@ cat > /etc/httpd/conf.d/myapp.conf << 'EOF'
 </VirtualHost>
 EOF
 ----
+
+Notice `DocumentRoot /app` - Apache will serve your PHP file directly from the volume mount, not a copy. This is key for instant updates!
 
 Configure SELinux to allow Apache to connect to the database:
 
@@ -356,9 +351,23 @@ You should see a styled page with three messages from the database:
 .Working LAMP Application
 image::lamp-app-working.png[LAMP application showing database messages,width=800]
 
-You've built a working LAMP application using the development workflow with volume mounts!
+[TIP]
+====
+*Try instant editing - the power of volume mounts:*
 
-[NOTE]
+[source,bash]
+----
+vi ~/lamp-dev/app/index.php
+----
+
+Find the line `<h1>LAMP Application - Development Mode</h1>` and change it to `<h1>LAMP Application - LIVE EDITING</h1>`:
+
+1. Press `i` to enter insert mode
+2. Navigate to "Development Mode" and change it to "LIVE EDITING"
+3. Press `Esc` to exit insert mode
+4. Type `:wq` and press Enter to save and quit
+
+Then refresh the **LAMP Application** tab. The title changes instantly - no rebuild needed. That's the power of volume mounts for development!
 ====
-**What's next:** Module 3 will show you how to modify your application and see changes appear instantly. You'll discover an important gotcha about volume mounts and learn to fix it - that's the real power of the development workflow.
-====
+
+You've built a working LAMP application using the development workflow - volume mounts for fast iteration. Next module: test edge cases and see the mutable workflow in action.

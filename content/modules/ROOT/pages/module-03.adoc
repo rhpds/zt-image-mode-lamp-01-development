@@ -118,71 +118,10 @@ This appends a yellow note box to the bottom of your page.
 
 No rebuild. No restart. Just refresh the **LAMP Application** tab.
 
-**But wait - did the yellow box appear?** Probably not. Here's why:
-
-Your change went through these steps:
-1. Host file updated: `~/lamp-dev/app/index.php` ✓
-2. Volume mount reflects change: `/app/index.php` inside container ✓
-3. Apache serves from: `/var/www/html/index.php` ❌ (old copy!)
-
-The problem: In Module 2, you manually copied the file to `/var/www/html/`. Your edit updated the volume-mounted file at `/app/`, but Apache still serves the old copy from `/var/www/html/`.
-
-This is a common development workflow mistake. Let's fix it.
-
-== Fix the Workflow: Serve Directly from the Volume Mount
-
-Enter the container:
-
-[source,bash,role=execute]
-----
-podman exec -it lamp-dev-container bash
-----
-
-Update Apache's configuration to serve directly from `/app`:
-
-[source,bash,role=execute]
-----
-cat > /etc/httpd/conf.d/myapp.conf << 'EOF'
-<VirtualHost *:80>
-    ServerAdmin webmaster@localhost
-    DocumentRoot /app
-
-    <Directory /app>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-
-    ErrorLog /var/log/httpd/error_log
-    CustomLog /var/log/httpd/access_log combined
-</VirtualHost>
-EOF
-----
-
-The only change: `DocumentRoot /app` instead of `DocumentRoot /var/www/html`.
-
-Restart Apache to load the new config:
-
-[source,bash,role=execute]
-----
-systemctl restart httpd
-----
-
-Exit the container:
-
-[source,bash,role=execute]
-----
-exit
-----
-
-Now edits to `~/lamp-dev/app/index.php` appear instantly. Try it:
-
-[source,bash,role=execute]
-----
-sed -i 's/Development Mode/Development Mode - LIVE EDITING/' ~/lamp-dev/app/index.php
-----
-
-Refresh the **LAMP Application** tab. The title changed from "Development Mode" to "Development Mode - LIVE EDITING" with no rebuild, no restart.
+The yellow box appears immediately! Your change went from:
+1. Host file (`~/lamp-dev/app/index.php`) ✓
+2. Through the volume mount (`/app/index.php` inside container) ✓
+3. Served by Apache (configured to use `/app/` as DocumentRoot) ✓
 
 This is the mutable workflow - perfect for development, but not for production.
 
