@@ -1,58 +1,74 @@
 = Test and Iterate on Your Application
 
-Your LAMP application works - database queries, PHP logic, and Apache all connected. Now experience the power of the development workflow.
+Your LAMP application works, but you discovered edits don't appear. In this module, you'll fix the workflow and experience true iterative development.
 
 **What "iterate" means:** Make changes → see results immediately → make more changes. No waiting for rebuilds or restarts.
 
 In this module, you'll:
-- Test the full application end-to-end
-- Add new data to the database
-- Modify the PHP code on your laptop
-- See changes appear instantly in the running container
+- Fix Apache to serve from the volume mount
+- Verify your heading change from Module 2 appears
+- Add new database content and PHP code
+- See all changes appear instantly
 
-This is why developers love volume mounts for development. But you'll also discover a common gotcha and learn to fix it.
+This is why developers love volume mounts for development.
 
 *Time: ~7 minutes*
 
-== Verify End-to-End Functionality
+== Fix the Workflow
 
-Test the full stack from outside the container:
+In Module 2, you edited `index.php` but the heading didn't change. Here's why:
 
-[source,bash,role=execute]
-----
-curl -s http://localhost:8080 | grep -A 1 "Hello, World"
-----
+**The problem:**
+- Apache is serving from `/var/www/html` (where you copied the file)
+- Your volume mount is at `/app` (where you're editing)
+- Editing `/app/index.php` doesn't affect what Apache serves
 
-*Expected output (excerpt):*
-
-----
-<h2>Messages from Database:</h2><div class='message'><strong>Hello, World!</strong><br><small>Created: 2026-10-13 19:06:17</small></div><div class='message'><strong>Welcome to LAMP development!</strong><br><small>Created: 2026-10-13 19:06:17</small></div><div class='message'><strong>Volume mounts make iteration fast.</strong><br><small>Created: 2026-10-13 19:06:17</small></div>
-    <div class='info'>
-----
-
-The output is all on one line (that's how HTML is minified). The database query worked - MariaDB → PHP → Apache all connected.
-
-Check the container logs to see Apache handling requests:
-
-[source,bash,role=execute]
-----
-podman logs lamp-dev-container --tail 5
-----
-
-*Expected output (may be empty):*
-
-----
-(no output, or Apache access logs if any requests were logged)
-----
-
-[NOTE]
-====
-If no logs appear, that's normal. Apache logs to `/var/log/httpd/` inside the container, but podman logs shows container stdout/stderr. Since Apache logs to files (not stdout), you might not see anything here.
-====
-
-== Add a New Greeting to the Database
+**The solution:** Reconfigure Apache to serve directly from the volume mount.
 
 Enter the container:
+
+[source,bash,role=execute]
+----
+podman exec -it lamp-dev-container bash
+----
+
+Edit the Apache configuration:
+
+[source,bash,role=execute]
+----
+sed -i 's|DocumentRoot /var/www/html|DocumentRoot /app|' /etc/httpd/conf.d/myapp.conf
+----
+
+Also update the Directory directive:
+
+[source,bash,role=execute]
+----
+sed -i 's|<Directory /var/www/html>|<Directory /app>|' /etc/httpd/conf.d/myapp.conf
+----
+
+Reload Apache to apply changes:
+
+[source,bash,role=execute]
+----
+systemctl reload httpd
+----
+
+Exit the container:
+
+[source,bash,role=execute]
+----
+exit
+----
+
+Now refresh the **LAMP Application** browser tab.
+
+**Success!** The heading now shows "My LAMP Application" - your edit from Module 2 finally appears. Apache is now serving directly from `/app`, which is your volume mount.
+
+== Add New Content and See It Instantly
+
+Now that Apache serves from the volume mount, let's prove iterative development works. You'll add database content and modify the PHP code - both changes will appear immediately.
+
+First, add a new database message. Enter the container:
 
 [source,bash,role=execute]
 ----
@@ -100,9 +116,7 @@ exit
 
 Refresh the **LAMP Application** tab. The new message appears immediately - no restart needed.
 
-== Modify the Application Code
-
-Here's where volume mounts show their value. Edit the PHP file on your host:
+Now add visual changes to the PHP file. Edit on your host:
 
 [source,bash,role=execute]
 ----
@@ -120,71 +134,7 @@ This appends a yellow note box to the bottom of your page.
 
 No rebuild. No restart. Just refresh the **LAMP Application** tab.
 
-**But wait - did the yellow box appear?** Probably not. Here's why:
-
-Your change went through these steps:
-1. Host file updated: `~/lamp-dev/app/index.php` ✓
-2. Volume mount reflects change: `/app/index.php` inside container ✓
-3. Apache serves from: `/var/www/html/index.php` ❌ (old copy!)
-
-The problem: In Module 2, you copied the file to `/var/www/html/`. Your edit updated the volume-mounted file at `/app/`, but Apache still serves the old copy from `/var/www/html/`.
-
-This is a common development workflow mistake. Let's fix it.
-
-== Fix the Workflow: Serve Directly from the Volume Mount
-
-Enter the container:
-
-[source,bash,role=execute]
-----
-podman exec -it lamp-dev-container bash
-----
-
-Update Apache's configuration to serve directly from `/app`:
-
-[source,bash,role=execute]
-----
-cat > /etc/httpd/conf.d/myapp.conf << 'EOF'
-<VirtualHost *:80>
-    ServerAdmin webmaster@localhost
-    DocumentRoot /app
-
-    <Directory /app>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-
-    ErrorLog /var/log/httpd/error_log
-    CustomLog /var/log/httpd/access_log combined
-</VirtualHost>
-EOF
-----
-
-The key change: `DocumentRoot /app` instead of `DocumentRoot /var/www/html`.
-
-Restart Apache to load the new config:
-
-[source,bash,role=execute]
-----
-systemctl restart httpd
-----
-
-Exit the container:
-
-[source,bash,role=execute]
-----
-exit
-----
-
-Now edits to `~/lamp-dev/app/index.php` appear instantly. Try it:
-
-[source,bash,role=execute]
-----
-sed -i 's/Development Mode/Development Mode - LIVE EDITING/' ~/lamp-dev/app/index.php
-----
-
-Refresh the **LAMP Application** tab. The title changed from "Development Mode" to "Development Mode - LIVE EDITING" with no rebuild, no restart.
+**The yellow box appears immediately!** Because Apache now serves from `/app` (the volume mount), your host file edits appear instantly inside the container.
 
 This is the mutable workflow - perfect for development, but not for production.
 

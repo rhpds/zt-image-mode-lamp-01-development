@@ -358,9 +358,22 @@ image::lamp-app-working.png[LAMP application showing database messages,width=120
 
 You've built a working LAMP application! The database, PHP, and Apache are all connected and serving content.
 
+== Try Editing the Application
+
+Let's test the development workflow. Edit the application heading on your host:
+
+[source,bash,role=execute]
+----
+sed -i 's/LAMP Application - Development Mode/My LAMP Application/' ~/lamp-dev/app/index.php
+----
+
+Refresh the **LAMP Application** browser tab.
+
+Notice: **The heading didn't change!** You edited the file on your host, but the page still shows "LAMP Application - Development Mode".
+
 [NOTE]
 ====
-**Want to try editing the application?** You might think you can just edit `~/lamp-dev/app/index.php` on your host and see changes appear instantly. Try it if you'd like - you'll discover an important gotcha!
+This is the gotcha. You edited `~/lamp-dev/app/index.php` (the volume mount), but Apache is serving from `/var/www/html` (where we copied the file earlier with `cp /app/index.php /var/www/html/`).
 
-**Module 3 will show you why edits don't appear yet and how to fix it.** This is a common development workflow mistake that's important to understand.
+**Module 3 will show you why this happens and how to fix it** so edits appear instantly. This is a common development workflow mistake that's important to understand.
 ====

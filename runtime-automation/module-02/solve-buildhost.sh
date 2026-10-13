@@ -150,5 +150,9 @@ su - rhel -c "podman exec lamp-dev-container systemctl start httpd" >> /tmp/prog
 # Wait for Apache to be ready
 sleep 2
 
+# Try editing the application (demonstrating the gotcha)
+sed -i 's/LAMP Application - Development Mode/My LAMP Application/' /home/rhel/lamp-dev/app/index.php
+chown rhel:rhel /home/rhel/lamp-dev/app/index.php
+
 echo "Module 02 solve completed successfully" >> /tmp/progress.log
 exit 0

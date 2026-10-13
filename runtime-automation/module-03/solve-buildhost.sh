@@ -1,42 +1,34 @@
 #!/bin/bash
-# Solve script for Module 03
+# Solve script for Module 03: Fix workflow and demonstrate iteration
 # This runs when the user clicks "Solve"
 
 set -e
 
 echo "Solving Module 03..." >> /tmp/progress.log
 
-# Module 03 is about testing and iteration
-# The main actions were already done in Module 02
-# This solve would demonstrate the volume mount workflow
+# Fix Apache to serve from volume mount (not /var/www/html)
+echo "Fixing Apache DocumentRoot..." >> /tmp/progress.log
+su - rhel -c "podman exec lamp-dev-container sed -i 's|DocumentRoot /var/www/html|DocumentRoot /app|' /etc/httpd/conf.d/myapp.conf" >> /tmp/progress.log 2>&1
+su - rhel -c "podman exec lamp-dev-container sed -i 's|<Directory /var/www/html>|<Directory /app>|' /etc/httpd/conf.d/myapp.conf" >> /tmp/progress.log 2>&1
+su - rhel -c "podman exec lamp-dev-container systemctl reload httpd" >> /tmp/progress.log 2>&1
 
-# Ensure container is running
-if ! podman ps | grep -q lamp-dev-container; then
-    echo "Starting container..." >> /tmp/progress.log
-    podman run -d \
-      --name lamp-dev-container \
-      -p 8080:80 \
-      -v ~/lamp-dev/app:/app:z \
-      lamp-dev >> /tmp/progress.log 2>&1
-fi
+sleep 1
 
-# Fix Apache to serve from volume mount
-podman exec lamp-dev-container bash -c "cat > /etc/httpd/conf.d/myapp.conf << 'EOF'
-<VirtualHost *:80>
-    ServerAdmin webmaster@localhost
-    DocumentRoot /app
+# Add new database record
+echo "Adding database record..." >> /tmp/progress.log
+su - rhel -c "podman exec lamp-dev-container mariadb -u hellouser -pSecurePassword hellodb -e \"INSERT INTO greetings (message) VALUES ('Iteration is instant');\"" >> /tmp/progress.log 2>&1
 
-    <Directory /app>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
+# Add yellow box to index.php (on host, will appear via volume mount)
+echo "Adding yellow box to application..." >> /tmp/progress.log
+cat >> /home/rhel/lamp-dev/app/index.php << 'EOF'
 
-    ErrorLog /var/log/httpd/error_log
-    CustomLog /var/log/httpd/access_log combined
-</VirtualHost>
+<!-- Modified during development -->
+<div style="background: #fff3cd; padding: 10px; margin-top: 20px; border-radius: 5px;">
+    <strong>Note:</strong> This application uses volume mounts for development.
+    Changes to this file appear instantly without rebuilding the container.
+</div>
 EOF
-systemctl restart httpd" >> /tmp/progress.log 2>&1
+chown rhel:rhel /home/rhel/lamp-dev/app/index.php
 
 echo "Module 03 solve complete" >> /tmp/progress.log
 exit 0
