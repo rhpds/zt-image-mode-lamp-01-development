@@ -1,8 +1,14 @@
 = Prepare Your Development Environment
 
-Most Image Mode labs focus on platform engineering - building OS images with monitoring tools and compliance baselines. This lab focuses on application development - packaging a database-backed LAMP application from development to production.
+Before building an application, you need a base container image. Think of this as the foundation: Red Hat Enterprise Linux with a LAMP stack (MariaDB, Apache, PHP) already installed.
 
-You'll build a development container for your LAMP application using volume mounts for fast iteration.
+**What you'll do:**
+1. Verify you can access Red Hat's container registry (where base images live)
+2. Check that the base image is available
+3. Review a Containerfile (like a recipe for building the container)
+4. Build your LAMP development container
+
+This container will have the services installed but no application yet. You'll add your application in Module 2.
 
 *Time: ~6 minutes*
 

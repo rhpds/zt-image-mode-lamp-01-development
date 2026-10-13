@@ -1,6 +1,14 @@
 = Build the LAMP Application
 
-You have a container with MariaDB, Apache, and PHP installed. Now add your application - database schema, PHP code, and web server configuration.
+You have a container with the LAMP stack installed (from Module 1). Now you'll build an actual application.
+
+**What "building an application" means:**
+1. Create a database (MariaDB) with tables and initial data
+2. Write PHP code that queries the database
+3. Configure Apache to serve your PHP application
+4. Test it all working together
+
+You'll create files on your laptop, but they'll instantly appear inside the container thanks to volume mounts. This is the development workflow: fast iteration, no rebuilding.
 
 == What You're Building With
 

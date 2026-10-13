@@ -1,8 +1,16 @@
 = Test and Iterate on Your Application
 
-Your LAMP application works - database queries, PHP logic, and Apache all running. Now see the real advantage of volume mounts: instant iteration.
+Your LAMP application works - database queries, PHP logic, and Apache all connected. Now experience the power of the development workflow.
 
-In this module, you'll make changes to your application and see them appear immediately without rebuilding the container. This is the development workflow.
+**What "iterate" means:** Make changes → see results immediately → make more changes. No waiting for rebuilds or restarts.
+
+In this module, you'll:
+- Test the full application end-to-end
+- Add new data to the database
+- Modify the PHP code on your laptop
+- See changes appear instantly in the running container
+
+This is why developers love volume mounts for development. But you'll also discover a common gotcha and learn to fix it.
 
 *Time: ~7 minutes*
 

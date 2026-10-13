@@ -1,41 +1,75 @@
 = Build a LAMP Development Container
 
-Your LAMP application works on your laptop. Now get it to production.
+== Introduction
 
-Development needs speed - edit code, see changes instantly. Production needs stability - immutable, reproducible deploys.
+**Image Mode for RHEL** is a container-native way to deploy Red Hat Enterprise Linux. Instead of installing packages on a running system, you build the entire OS as a bootable container image. This bridges the gap between development teams (who love containers) and operations teams (who need reliable OS deployments).
 
-This lab shows the development workflow. Lab 2 shows production packaging. Same app, different strategies.
+This two-lab series teaches **application developers** how to use Image Mode. Most Image Mode labs focus on platform engineering - OS configuration, compliance, updates. This lab focuses on **packaging your application** for deployment.
 
-*Time: ~28 minutes | Difficulty: Intermediate*
+**The scenario:** You've built a web application (a database-backed LAMP stack). Now you need to deploy it. Lab 1 teaches the development workflow with fast iteration. Lab 2 teaches production packaging as a bootable image.
+
+*Time: ~28 minutes | Difficulty: Beginner*
 
 == What You'll Build
 
-A database-backed LAMP application with:
-- MariaDB database
-- Apache web server
-- PHP application that queries the database
+A database-backed web application using the **LAMP stack**:
 
-You'll use volume mounts for rapid iteration - edit files on your host, changes appear instantly in the container.
+**LAMP** = **L**inux + **A**pache + **M**ariaDB + **P**HP
 
-== Why This Lab
+- **Linux**: The operating system (RHEL, running in a container)
+- **Apache**: Web server that handles HTTP requests and serves your web pages
+- **MariaDB**: Database server that stores and retrieves your application data
+- **PHP**: Programming language that connects to the database and generates dynamic web pages
 
-Most Image Mode labs focus on platform engineering - building OS images with monitoring tools and compliance baselines. This lab focuses on application development - packaging a database-backed web application from development to production.
+This is a classic web application stack used by millions of websites.
 
-You'll write actual application code (SQL, PHP, Apache configs), not just install OS packages.
+== The Development Workflow
+
+You'll use **volume mounts** - a container feature that makes files on your host computer instantly available inside the container.
+
+**Why this matters:** Edit `index.php` on your laptop → change appears immediately in the running container → no rebuild, no restart. This makes development fast and interactive.
+
+**The trade-off:** Volume mounts are great for development but problematic for production (files can be modified, no version control). Lab 2 shows the production approach: baking files into the image at build time.
+
+== Why This Lab is Different
+
+**Most Image Mode labs teach you to:**
+- Configure operating system security policies
+- Install monitoring tools
+- Manage OS updates and rollbacks
+- Target audience: Platform engineers and sysadmins
+
+**This lab teaches you to:**
+- Package your web application for deployment
+- Use development workflows (volume mounts) vs production workflows (immutable images)
+- Write actual application code: SQL schemas, PHP logic, Apache configs
+- Target audience: Application developers
+
+If you're a developer who needs to deploy an application with Image Mode, this is your starting point.
+
+== Key Concepts You'll Use
+
+**Container**: Isolated environment that runs your application with all its dependencies. Like a lightweight virtual machine, but faster.
+
+**Volume mount**: Shares a directory from your computer into the container. Files on your host = files in container, instantly.
+
+**Systemd**: Linux service manager. Starts services like MariaDB and Apache when the container boots.
+
+**Bootable container** (Lab 2): A container image that can boot as a complete operating system, not just run an application.
 
 == What You'll Learn
 
-- Building containers with systemd support (for running services)
-- Using volume mounts for fast development iteration
-- Creating database schemas and seed data
+- Building containers with systemd support (running multiple services)
+- Using volume mounts for instant code updates (development workflow)
+- Creating database schemas and populating initial data
 - Writing PHP applications with database connectivity
-- Configuring Apache for your application
-- Understanding mutable workflows (dev) vs immutable (production)
+- Configuring Apache to serve your application
+- Understanding when to use mutable (dev) vs immutable (production) workflows
 
 == Prerequisites
 
-- Basic container knowledge
-- Familiarity with LAMP stack concepts
+- Basic command line skills
+- No prior container or LAMP experience required - we'll explain as we go
 
 == Lab Flow
 
