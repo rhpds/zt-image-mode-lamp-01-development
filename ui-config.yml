@@ -18,7 +18,7 @@ tabs:
   - name: ">_ terminal"
     url: /wetty
   - name: "LAMP Application"
-    url: /services/webapp/
+    url: http://webapp-${guid}.${domain}
   - name: "Red Hat Container Registry"
     url: https://catalog.redhat.com/software/containers/explore
     external: true
