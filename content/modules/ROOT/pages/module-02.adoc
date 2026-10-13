@@ -336,10 +336,10 @@ You should see a styled page with three messages from the database:
 
 [source,bash]
 ----
-nano ~/lamp-dev/app/index.php
+vi ~/lamp-dev/app/index.php
 ----
 
-Change the `<h1>` text, save, then refresh your browser. The change appears instantly - no rebuild needed. That's the power of volume mounts for development.
+Change the `<h1>` text (press `i` to insert, edit the text, press `Esc`, then type `:wq` to save and quit), then refresh your browser. The change appears instantly - no rebuild needed. That's the power of volume mounts for development.
 ====
 
 You've built a working LAMP application using the development workflow - volume mounts for fast iteration. Next module: test edge cases and see the mutable workflow in action.

@@ -1,25 +1,25 @@
 #!/bin/bash
-# Validation script for Module 02: Configure LAMP Application
-# This validates that the LAMP application is running and accessible
+# Validation script for Module 02: Build the LAMP Application
+# Returns 0 if module objectives are met, non-zero otherwise
 
 set -e
 
 echo "Validating Module 02..." >> /tmp/progress.log
 
 # Check if container is running
-if ! podman ps | grep -q lamp-dev; then
-    echo "FAIL: lamp-dev container is not running" >> /tmp/progress.log
+if ! su - rhel -c "podman ps" | grep -q lamp-dev-container; then
+    echo "FAIL: lamp-dev-container is not running" >> /tmp/progress.log
     exit 1
 fi
 
 # Check if MariaDB is running in the container
-if ! podman exec lamp-dev systemctl is-active --quiet mariadb; then
+if ! su - rhel -c "podman exec lamp-dev-container systemctl is-active mariadb" | grep -q "^active$"; then
     echo "FAIL: MariaDB is not running in container" >> /tmp/progress.log
     exit 1
 fi
 
 # Check if Apache is running in the container
-if ! podman exec lamp-dev systemctl is-active --quiet httpd; then
+if ! su - rhel -c "podman exec lamp-dev-container systemctl is-active httpd" | grep -q "^active$"; then
     echo "FAIL: Apache is not running in container" >> /tmp/progress.log
     exit 1
 fi
@@ -36,6 +36,5 @@ if ! curl -s http://localhost:8080 | grep -q "Hello, World"; then
     exit 1
 fi
 
-# Success
-echo "Module 02 validation passed" >> /tmp/progress.log
+echo "PASS: Module 02 validation successful" >> /tmp/progress.log
 exit 0
