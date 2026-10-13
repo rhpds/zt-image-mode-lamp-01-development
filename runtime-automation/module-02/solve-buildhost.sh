@@ -117,13 +117,16 @@ cat > /home/rhel/lamp-dev/app/index.php << 'PHPEOF'
 PHPEOF
 chown rhel:rhel /home/rhel/lamp-dev/app/index.php
 
-# Create Apache config on host to serve directly from volume mount
+# Deploy PHP to Apache (inside container)
+su - rhel -c "podman exec lamp-dev-container cp /app/index.php /var/www/html/" >> /tmp/progress.log
+
+# Create Apache config on host
 cat > /home/rhel/lamp-dev/app/myapp.conf << 'EOF'
 <VirtualHost *:80>
     ServerAdmin webmaster@localhost
-    DocumentRoot /app
+    DocumentRoot /var/www/html
 
-    <Directory /app>
+    <Directory /var/www/html>
         Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
