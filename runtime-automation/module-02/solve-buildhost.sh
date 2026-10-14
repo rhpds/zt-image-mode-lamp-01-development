@@ -23,6 +23,12 @@ su - rhel -c "podman run -d --name lamp-dev-container -p 8080:80 -v ~/lamp-dev/a
 # Wait for container to be ready
 sleep 3
 
+# Ensure app directory exists on host
+echo "Ensuring app directory exists..." >> /tmp/progress.log
+mkdir -p /home/rhel/lamp-dev/app
+chown rhel:rhel /home/rhel/lamp-dev/app
+echo "App directory ready" >> /tmp/progress.log
+
 # Start MariaDB
 echo "Starting MariaDB..." >> /tmp/progress.log
 su - rhel -c "podman exec lamp-dev-container systemctl start mariadb" >> /tmp/progress.log 2>&1
@@ -47,7 +53,13 @@ INSERT INTO greetings (message) VALUES ('Welcome to LAMP development!');
 INSERT INTO greetings (message) VALUES ('Volume mounts make iteration fast.');
 EOF
 chown rhel:rhel /home/rhel/lamp-dev/app/db-setup.sql
-echo "db-setup.sql created" >> /tmp/progress.log
+if [ -f /home/rhel/lamp-dev/app/db-setup.sql ]; then
+    echo "db-setup.sql created successfully" >> /tmp/progress.log
+    ls -lh /home/rhel/lamp-dev/app/db-setup.sql >> /tmp/progress.log
+else
+    echo "ERROR: db-setup.sql NOT created!" >> /tmp/progress.log
+    exit 1
+fi
 
 # Initialize database (file is available at /app inside container via volume mount)
 echo "Initializing database..." >> /tmp/progress.log
@@ -124,7 +136,13 @@ cat > /home/rhel/lamp-dev/app/index.php << 'PHPEOF'
 </html>
 PHPEOF
 chown rhel:rhel /home/rhel/lamp-dev/app/index.php
-echo "index.php created" >> /tmp/progress.log
+if [ -f /home/rhel/lamp-dev/app/index.php ]; then
+    echo "index.php created successfully" >> /tmp/progress.log
+    ls -lh /home/rhel/lamp-dev/app/index.php >> /tmp/progress.log
+else
+    echo "ERROR: index.php NOT created!" >> /tmp/progress.log
+    exit 1
+fi
 
 # Deploy PHP to Apache (inside container)
 echo "Deploying PHP to Apache..." >> /tmp/progress.log
@@ -149,7 +167,13 @@ cat > /home/rhel/lamp-dev/app/myapp.conf << 'EOF'
 </VirtualHost>
 EOF
 chown rhel:rhel /home/rhel/lamp-dev/app/myapp.conf
-echo "myapp.conf created" >> /tmp/progress.log
+if [ -f /home/rhel/lamp-dev/app/myapp.conf ]; then
+    echo "myapp.conf created successfully" >> /tmp/progress.log
+    ls -lh /home/rhel/lamp-dev/app/myapp.conf >> /tmp/progress.log
+else
+    echo "ERROR: myapp.conf NOT created!" >> /tmp/progress.log
+    exit 1
+fi
 
 # Deploy Apache config (inside container)
 echo "Deploying Apache config..." >> /tmp/progress.log
@@ -184,6 +208,11 @@ else
     echo "Application response:" >> /tmp/progress.log
     curl -s http://localhost:8080 | head -20 >> /tmp/progress.log 2>&1 || echo "curl failed" >> /tmp/progress.log
 fi
+
+# Final inventory of created files
+echo "Final file inventory:" >> /tmp/progress.log
+ls -lh /home/rhel/lamp-dev/app/ >> /tmp/progress.log 2>&1
+echo "---" >> /tmp/progress.log
 
 echo "Module 02 solve completed successfully" >> /tmp/progress.log
 exit 0
