@@ -13,13 +13,13 @@ if ! su - rhel -c "podman ps" | grep -q lamp-dev-container; then
 fi
 
 # Check if MariaDB is running in the container
-if ! su - rhel -c "podman exec lamp-dev-container systemctl is-active mariadb" | grep -q "^active$"; then
+if ! su - rhel -c "podman exec lamp-dev-container systemctl is-active mariadb" | grep -q "active"; then
     echo "FAIL: MariaDB is not running in container" >> /tmp/progress.log
     exit 1
 fi
 
 # Check if Apache is running in the container
-if ! su - rhel -c "podman exec lamp-dev-container systemctl is-active httpd" | grep -q "^active$"; then
+if ! su - rhel -c "podman exec lamp-dev-container systemctl is-active httpd" | grep -q "active"; then
     echo "FAIL: Apache is not running in container" >> /tmp/progress.log
     exit 1
 fi
@@ -33,6 +33,24 @@ fi
 # Check if application returns database content
 if ! curl -s http://localhost:8080 | grep -q "Hello, World"; then
     echo "FAIL: Application not returning expected database content" >> /tmp/progress.log
+    echo "Application response:" >> /tmp/progress.log
+    curl -s http://localhost:8080 | head -20 >> /tmp/progress.log
+    exit 1
+fi
+
+# Check if host files were created
+if [ ! -f /home/rhel/lamp-dev/app/db-setup.sql ]; then
+    echo "FAIL: db-setup.sql not found on host" >> /tmp/progress.log
+    exit 1
+fi
+
+if [ ! -f /home/rhel/lamp-dev/app/index.php ]; then
+    echo "FAIL: index.php not found on host" >> /tmp/progress.log
+    exit 1
+fi
+
+if [ ! -f /home/rhel/lamp-dev/app/myapp.conf ]; then
+    echo "FAIL: myapp.conf not found on host" >> /tmp/progress.log
     exit 1
 fi
 

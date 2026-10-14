@@ -5,6 +5,7 @@
 set -e
 
 echo "Solving Module 02..." >> /tmp/progress.log
+echo "Timestamp: $(date)" >> /tmp/progress.log
 
 # Check if lamp-dev image exists (from Module 01)
 if ! su - rhel -c "podman images lamp-dev" | grep -q lamp-dev; then
@@ -23,10 +24,13 @@ su - rhel -c "podman run -d --name lamp-dev-container -p 8080:80 -v ~/lamp-dev/a
 sleep 3
 
 # Start MariaDB
-su - rhel -c "podman exec lamp-dev-container systemctl start mariadb" >> /tmp/progress.log
+echo "Starting MariaDB..." >> /tmp/progress.log
+su - rhel -c "podman exec lamp-dev-container systemctl start mariadb" >> /tmp/progress.log 2>&1
 sleep 2
+echo "MariaDB started" >> /tmp/progress.log
 
 # Create database setup script on host
+echo "Creating db-setup.sql..." >> /tmp/progress.log
 cat > /home/rhel/lamp-dev/app/db-setup.sql << 'EOF'
 CREATE DATABASE IF NOT EXISTS hellodb;
 CREATE USER IF NOT EXISTS 'hellouser'@'localhost' IDENTIFIED BY 'SecurePassword';
@@ -43,11 +47,15 @@ INSERT INTO greetings (message) VALUES ('Welcome to LAMP development!');
 INSERT INTO greetings (message) VALUES ('Volume mounts make iteration fast.');
 EOF
 chown rhel:rhel /home/rhel/lamp-dev/app/db-setup.sql
+echo "db-setup.sql created" >> /tmp/progress.log
 
 # Initialize database (file is available at /app inside container via volume mount)
-su - rhel -c "podman exec lamp-dev-container mariadb -u root < /app/db-setup.sql" >> /tmp/progress.log
+echo "Initializing database..." >> /tmp/progress.log
+su - rhel -c "podman exec lamp-dev-container bash -c 'mariadb -u root < /app/db-setup.sql'" >> /tmp/progress.log 2>&1
+echo "Database initialized" >> /tmp/progress.log
 
 # Create PHP application on host
+echo "Creating index.php..." >> /tmp/progress.log
 cat > /home/rhel/lamp-dev/app/index.php << 'PHPEOF'
 <!DOCTYPE html>
 <html>
@@ -116,11 +124,15 @@ cat > /home/rhel/lamp-dev/app/index.php << 'PHPEOF'
 </html>
 PHPEOF
 chown rhel:rhel /home/rhel/lamp-dev/app/index.php
+echo "index.php created" >> /tmp/progress.log
 
 # Deploy PHP to Apache (inside container)
-su - rhel -c "podman exec lamp-dev-container cp /app/index.php /var/www/html/" >> /tmp/progress.log
+echo "Deploying PHP to Apache..." >> /tmp/progress.log
+su - rhel -c "podman exec lamp-dev-container cp /app/index.php /var/www/html/" >> /tmp/progress.log 2>&1
+echo "PHP deployed" >> /tmp/progress.log
 
 # Create Apache config on host
+echo "Creating myapp.conf..." >> /tmp/progress.log
 cat > /home/rhel/lamp-dev/app/myapp.conf << 'EOF'
 <VirtualHost *:80>
     ServerAdmin webmaster@localhost
@@ -137,22 +149,41 @@ cat > /home/rhel/lamp-dev/app/myapp.conf << 'EOF'
 </VirtualHost>
 EOF
 chown rhel:rhel /home/rhel/lamp-dev/app/myapp.conf
+echo "myapp.conf created" >> /tmp/progress.log
 
 # Deploy Apache config (inside container)
-su - rhel -c "podman exec lamp-dev-container cp /app/myapp.conf /etc/httpd/conf.d/" >> /tmp/progress.log
+echo "Deploying Apache config..." >> /tmp/progress.log
+su - rhel -c "podman exec lamp-dev-container cp /app/myapp.conf /etc/httpd/conf.d/" >> /tmp/progress.log 2>&1
+echo "Apache config deployed" >> /tmp/progress.log
 
 # Configure SELinux (may not be available in container - that's fine)
-su - rhel -c "podman exec lamp-dev-container bash -c 'setsebool -P httpd_can_network_connect_db on 2>/dev/null || true'" >> /tmp/progress.log
+echo "Configuring SELinux..." >> /tmp/progress.log
+su - rhel -c "podman exec lamp-dev-container bash -c 'setsebool -P httpd_can_network_connect_db on 2>/dev/null || true'" >> /tmp/progress.log 2>&1
+echo "SELinux configured" >> /tmp/progress.log
 
 # Start Apache
-su - rhel -c "podman exec lamp-dev-container systemctl start httpd" >> /tmp/progress.log
+echo "Starting Apache..." >> /tmp/progress.log
+su - rhel -c "podman exec lamp-dev-container systemctl start httpd" >> /tmp/progress.log 2>&1
+echo "Apache started" >> /tmp/progress.log
 
 # Wait for Apache to be ready
 sleep 2
 
 # Try editing the application (demonstrating the gotcha)
+echo "Editing H1 heading to demonstrate gotcha..." >> /tmp/progress.log
 sed -i 's/LAMP Application - Development Mode/My LAMP Application/' /home/rhel/lamp-dev/app/index.php
 chown rhel:rhel /home/rhel/lamp-dev/app/index.php
+echo "H1 heading edited" >> /tmp/progress.log
+
+# Verify application is responding
+echo "Verifying application responds..." >> /tmp/progress.log
+if curl -s http://localhost:8080 | grep -q "Hello, World"; then
+    echo "Application verification: SUCCESS" >> /tmp/progress.log
+else
+    echo "Application verification: FAILED" >> /tmp/progress.log
+    echo "Application response:" >> /tmp/progress.log
+    curl -s http://localhost:8080 | head -20 >> /tmp/progress.log 2>&1 || echo "curl failed" >> /tmp/progress.log
+fi
 
 echo "Module 02 solve completed successfully" >> /tmp/progress.log
 exit 0
