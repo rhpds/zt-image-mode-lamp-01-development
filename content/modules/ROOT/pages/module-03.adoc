@@ -153,17 +153,7 @@ This is fast, flexible, and great for development. But it has problems for produ
 
 In Lab 2, you'll transform this into an immutable production deployment - files baked into the image, packaged as a bootable VM.
 
-== Stop the Development Container
-
-Stop and remove the container:
-
-[source,bash,role=execute]
-----
-podman stop lamp-dev-container
-podman rm lamp-dev-container
-----
-
-Your application files remain on your host at `~/lamp-dev/app/`. You can rebuild the container anytime with the same files.
+Leave the development container running. Your application files remain on your host at `~/lamp-dev/app/` and stay available through the volume mount.
 
 [TIP]
 ====
