@@ -237,25 +237,16 @@ You created this on your host, but it's already inside the container at `/app/in
 
 == Deploy the Application to Apache
 
-Enter the container:
+Create the Apache virtual host configuration on your host:
+
+[NOTE]
+====
+Run this command from your host terminal (`[rhel@buildhost ~]$`), not inside the container.
+====
 
 [source,bash,role=execute]
 ----
-podman exec -it lamp-dev-container bash
-----
-
-Copy the PHP file to Apache's web root:
-
-[source,bash,role=execute]
-----
-cp /app/index.php /var/www/html/
-----
-
-Create an Apache virtual host configuration:
-
-[source,bash,role=execute]
-----
-cat > /etc/httpd/conf.d/myapp.conf << 'EOF'
+cat > ~/lamp-dev/app/myapp.conf << 'EOF'
 <VirtualHost *:80>
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/html
@@ -270,6 +261,29 @@ cat > /etc/httpd/conf.d/myapp.conf << 'EOF'
     CustomLog /var/log/httpd/access_log combined
 </VirtualHost>
 EOF
+----
+
+Like the PHP file, this lives on your host and is available inside the container at `/app/myapp.conf` via the volume mount.
+
+Enter the container:
+
+[source,bash,role=execute]
+----
+podman exec -it lamp-dev-container bash
+----
+
+Copy the PHP file to Apache's web root:
+
+[source,bash,role=execute]
+----
+cp /app/index.php /var/www/html/
+----
+
+Copy the Apache configuration into place:
+
+[source,bash,role=execute]
+----
+cp /app/myapp.conf /etc/httpd/conf.d/
 ----
 
 Configure SELinux to allow Apache to connect to the database:
