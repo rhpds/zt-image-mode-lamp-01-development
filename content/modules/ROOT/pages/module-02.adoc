@@ -1,28 +1,32 @@
 = Build the LAMP Application
 
-You have a container with the LAMP stack installed (from Module 1). Now you'll build an actual application.
+*Lab 1 of 2 — Module 2*
 
-**What "building an application" means:**
-1. Create a database (MariaDB) with tables and initial data
-2. Write PHP code that queries the database
-3. Configure Apache to serve your PHP application
-4. Test it all working together
+You have a LAMP container image from Module 1. Now build the application itself.
 
-You'll create files on your laptop, but they'll instantly appear inside the container thanks to volume mounts. This is the development workflow: fast iteration, no rebuilding.
+**Focus this module on:**
+1. Create a MariaDB database with tables and seed data
+2. Write PHP that queries the database
+3. Configure Apache to serve the app
+4. Confirm everything works together
 
-== What You're Building With
-
-**LAMP** = Linux + Apache + MariaDB + PHP:
-
-- **MariaDB**: Database server (stores your data in tables)
-- **Apache**: Web server (serves HTTP requests on port 80)
-- **PHP**: Application language (connects to database, generates HTML)
-
-You'll use volume mounts to make files on your host instantly available inside the container. Edit a file, refresh the **LAMP Application** tab - no rebuild needed. This is the development workflow.
+You create files on the host; volume mounts make them available inside the container — fast iteration, no rebuild.
 
 *Time: ~15 minutes*
 
+== What You're Building With
+
+.How a request reaches your data
+image::lamp-architecture.jpg[Browser to Apache to PHP to MariaDB request flow,width=1000]
+
+- **MariaDB** — stores data in tables
+- **Apache** — serves HTTP on port 80 (mapped to host `8080`)
+- **PHP** — connects to the database and generates HTML
+
 == Run the Development Container
+
+.Volume mount used by this container
+image::volume-mount-diagram.jpg[Host app directory mounted to container /app,width=1000]
 
 Start the container with a volume mount:
 
@@ -362,15 +366,20 @@ You'll see the full HTML with your greeting messages from the database. The data
 
 Now click the **LAMP Application** tab at the top of the page to view the running application.
 
-You should see a styled page with three messages from the database:
+*Look for* three messages from the database:
 - "Hello, World!"
 - "Welcome to LAMP development!"
 - "Volume mounts make iteration fast."
 
-.Working LAMP Application
+.Working LAMP application (expected UI)
 image::lamp-app-working.png[LAMP application showing database messages,width=1200]
 
-You've built a working LAMP application! The database, PHP, and Apache are all connected and serving content.
+[TIP]
+====
+If you take a fresher Showroom screenshot, replace `lamp-app-working.png` in `content/modules/ROOT/images/`.
+====
+
+You've built a working LAMP application — database, PHP, and Apache are connected.
 
 == Try Editing the Application
 
@@ -383,11 +392,14 @@ sed -i 's/LAMP Application - Development Mode/My LAMP Application/' ~/lamp-dev/a
 
 Refresh the **LAMP Application** browser tab.
 
-Notice: **The heading didn't change!** You edited the file on your host, but the page still shows "LAMP Application - Development Mode".
+Notice: **The heading did not change.** The page still shows "LAMP Application - Development Mode".
 
-[NOTE]
+.Why edits did not appear (Module 2 problem → Module 3 fix)
+image::apache-path-gotcha.jpg[Apache serving stale copy in var www html versus live volume mount at app,width=1000]
+
+[IMPORTANT]
 ====
-This is the gotcha. You edited `~/lamp-dev/app/index.php` (the volume mount), but Apache is serving from `/var/www/html` (where we copied the file earlier with `cp /app/index.php /var/www/html/`).
+You edited `~/lamp-dev/app/index.php` (the volume mount), but Apache is still serving the *copied* file from `/var/www/html`.
 
-**Module 3 will show you why this happens and how to fix it** so edits appear instantly. This is a common development workflow mistake that's important to understand.
+**Module 3 fixes this** so edits appear instantly. Capture a Showroom screenshot of the unchanged heading and save it as `lamp-app-stale-heading.png` if you want a UI reference beside this diagram.
 ====

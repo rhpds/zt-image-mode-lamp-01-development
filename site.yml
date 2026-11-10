@@ -1,15 +1,14 @@
 ---
 site:
-  title: "Change me, your title lives as site.title in site.yml"
-  url: https://github.com/rhpds/showroom_template_zero
+  title: "Lab 1 of 2: Build a LAMP Development Container"
+  url: https://github.com/rhpds/zt-image-mode-lamp-01-development
   start_page: modules::module-01.adoc
 
 asciidoc:
   attributes:
-    lab_name: "I'm the lab_name var"
+    lab_name: "Lab 1 of 2: Build a LAMP Development Container"
     release-version: master
     page-pagination: true
-    my_var: "foo - this is an asciidoc attribute from `site.yml`"
 
 content:
   sources:

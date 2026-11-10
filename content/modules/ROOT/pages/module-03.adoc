@@ -1,29 +1,29 @@
 = Test and Iterate on Your Application
 
-Your LAMP application works, but you discovered edits don't appear. In this module, you'll fix the workflow and experience true iterative development.
+*Lab 1 of 2 — Module 3*
 
-**What "iterate" means:** Make changes → see results immediately → make more changes. No waiting for rebuilds or restarts.
+Your LAMP application works, but edits on the host did not show up. This module fixes that and proves true iterative development.
 
-In this module, you'll:
-- Fix Apache to serve from the volume mount
-- Verify your heading change from Module 2 appears
-- Add new database content and PHP code
-- See all changes appear instantly
+**Iterate means:** change → see results immediately → change again. No rebuilds. No restarts.
 
-This is why developers love volume mounts for development.
+**Focus this module on:**
+- Point Apache at the volume mount (`/app`)
+- Confirm the Module 2 heading change appears
+- Add database and PHP updates and see them instantly
 
 *Time: ~7 minutes*
 
 == Fix the Workflow
 
-In Module 2, you edited `index.php` but the heading didn't change. Here's why:
+.Same gotcha — now you fix the right-hand side
+image::apache-path-gotcha.jpg[Module 2 stale DocumentRoot versus Module 3 serve from volume mount,width=1000]
 
 **The problem:**
-- Apache is serving from `/var/www/html` (where you copied the file)
-- Your volume mount is at `/app` (where you're editing)
-- Editing `/app/index.php` doesn't affect what Apache serves
+- Apache serves `/var/www/html` (the copied file)
+- You edit `/app` (the volume mount)
+- Those paths are different, so the browser stays stale
 
-**The solution:** Reconfigure Apache to serve directly from the volume mount.
+**The solution:** Point Apache's `DocumentRoot` at `/app`.
 
 Enter the container:
 
@@ -62,7 +62,14 @@ exit
 
 Now refresh the **LAMP Application** browser tab.
 
-**Success!** The heading now shows "My LAMP Application" - your edit from Module 2 finally appears. Apache is now serving directly from `/app`, which is your volume mount.
+**Success!** The heading shows "My LAMP Application" — your Module 2 edit finally appears. Apache is serving from `/app` (the volume mount).
+
+[TIP]
+====
+*Screenshot to add:* Save the fixed heading UI as `lamp-app-fixed-heading.png`, then insert:
+
+`image::lamp-app-fixed-heading.png[Heading shows My LAMP Application,width=1200]`
+====
 
 == Add New Content and See It Instantly
 
@@ -134,42 +141,39 @@ This appends a yellow note box to the bottom of your page.
 
 No rebuild. No restart. Just refresh the **LAMP Application** tab.
 
-**The yellow box appears immediately!** Because Apache now serves from `/app` (the volume mount), your host file edits appear instantly inside the container.
-
-This is the mutable workflow - perfect for development, but not for production.
-
-== Understand What You Built
-
-You've created a development environment where:
-- **Files live on your host** (`~/lamp-dev/app/`)
-- **Volume mounts make them available inside the container** (`/app/`)
-- **Apache serves directly from the mount**
-- **Edits appear instantly**
-
-This is fast, flexible, and great for development. But it has problems for production:
-- Files are mutable (someone could SSH in and edit them)
-- No versioning (what version is deployed?)
-- No reproducibility (every container could be different)
-
-In Lab 2, you'll transform this into an immutable production deployment - files baked into the image, packaged as a bootable VM.
-
-Leave the development container running. Your application files remain on your host at `~/lamp-dev/app/` and stay available through the volume mount.
+**The yellow box appears immediately** because Apache serves `/app` — host edits show up with a refresh.
 
 [TIP]
 ====
-*Development workflow summary:*
+*Screenshot to add:* Save the yellow note box UI as `lamp-app-yellow-box.png`, then insert:
 
-1. Volume mounts (`-v ~/lamp-dev/app:/app:z`)
-2. Mutable files (edit anytime, changes appear instantly)
-3. Fast iteration (no rebuild needed)
-4. Perfect for development
-
-*What's next:*
-
-Lab 2 teaches the production workflow:
-- COPY directives (files baked into image at build time)
-- Immutable deployments (can't edit files after build)
-- Bootable images (entire OS + application packaged as one)
+`image::lamp-app-yellow-box.png[Yellow note box from volume mount edit,width=1200]`
 ====
 
-You've completed Lab 1. You built a database-backed LAMP application using the development workflow with volume mounts. In Lab 2, you'll package this same application for production deployment.
+This mutable workflow is ideal for development, not for production.
+
+== Understand What You Built
+
+You now have a development environment where:
+- Files live on the host (`~/lamp-dev/app/`)
+- Volume mounts expose them at `/app`
+- Apache serves directly from the mount
+- Edits appear instantly
+
+Fast for development — but mutable, unversioned, and hard to reproduce in production.
+
+.Ready for Lab 2
+image::lab-series-roadmap.jpg[Part 1 complete; Part 2 packages the same app as a bootable image,width=1000]
+
+**Lab 2** (`zt-image-mode-lamp-02-bootable`) turns this into an immutable bootable deployment — same application files, baked into the image.
+
+Leave the development container running. Your files stay on the host at `~/lamp-dev/app/`.
+
+[TIP]
+====
+*Lab 1 takeaway:* volume mounts → fast, mutable iteration.
+
+*Lab 2 next:* `COPY` into the image → immutable, bootable deployment.
+====
+
+You've completed **Lab 1 of 2**.

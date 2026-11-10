@@ -1,5 +1,7 @@
 = Prepare Your Development Environment
 
+*Lab 1 of 2 — Module 1*
+
 Before building an application, you need a base container image. Think of this as the foundation: Red Hat Enterprise Linux with a LAMP stack (MariaDB, Apache, PHP) already installed.
 
 **What you'll do:**
@@ -63,23 +65,17 @@ cd ~/lamp-dev
 ls -la
 ----
 
-*Expected output:*
+*Look for:* `Containerfile`, `README.md`, and an `app/` directory.
 
-----
-total 8
-drwxr-xr-x. 3 rhel rhel   55 Oct 13 13:59 .
-drwx------. 7 rhel rhel  135 Oct 13 13:59 ..
--rw-r--r--. 1 rhel rhel  356 Oct 13 13:59 Containerfile
--rw-r--r--. 1 rhel rhel 1426 Oct 13 13:59 README.md
-drwxr-xr-x. 2 rhel rhel   85 Oct 13 13:59 app
-----
+.Your development workspace
+image::workspace-tree.jpg[Workspace tree with Containerfile README and app directory,width=800]
 
 This workspace holds:
-- `Containerfile` - defines your LAMP container
-- `app/` - your application files (SQL, PHP, Apache config)
-- `README.md` - quick reference guide
+- `Containerfile` — recipe for your LAMP container
+- `app/` — application files you will create (SQL, PHP, Apache config)
+- `README.md` — quick reference
 
-Unlike OS-focused Image Mode labs where you install monitoring tools, you're building an actual application. The `app/` directory will contain code you write, not just configuration.
+Unlike OS-focused Image Mode labs, you're building an actual application. The `app/` directory holds code, not just OS configuration.
 
 == Review the Development Containerfile
 
