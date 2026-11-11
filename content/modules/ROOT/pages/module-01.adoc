@@ -12,6 +12,16 @@ Before building an application, you need a base container image. Think of this a
 
 This container will have the services installed but no application yet. You'll add your application in Module 2.
 
+[NOTE]
+====
+You may see a **LAMP Application** tab in the lab UI. If you open it during this module, you will get an "Application is not available" page. That is expected.
+
+.LAMP Application tab before the app is running
+image::lamp-application-is-not-available.png[OpenShift page saying Application is not available,width=1000]
+
+Nothing is wrong with your environment. In Module 2 you start the container and deploy the app. After that, the same tab shows your working LAMP page.
+====
+
 == Verify Registry Authentication
 
 Your environment is pre-authenticated to Red Hat's container registry. Verify the authentication is working:
