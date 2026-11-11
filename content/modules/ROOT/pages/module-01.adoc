@@ -1,6 +1,6 @@
 = Prepare Your Development Environment
 
-*Lab 1 of 2 — Module 1*
+*Lab 1 of 2, Module 1*
 
 Before building an application, you need a base container image. Think of this as the foundation: Red Hat Enterprise Linux with a LAMP stack (MariaDB, Apache, PHP) already installed.
 
@@ -11,8 +11,6 @@ Before building an application, you need a base container image. Think of this a
 4. Build your LAMP development container
 
 This container will have the services installed but no application yet. You'll add your application in Module 2.
-
-*Time: ~6 minutes*
 
 == Verify Registry Authentication
 
@@ -68,12 +66,12 @@ ls -la
 *Look for:* `Containerfile`, `README.md`, and an `app/` directory.
 
 .Your development workspace
-image::workspace-tree.jpg[Workspace tree with Containerfile README and app directory,width=800]
+image::workspace-tree.svg[Workspace tree with Containerfile README and app directory,width=800]
 
 This workspace holds:
-- `Containerfile` — recipe for your LAMP container
-- `app/` — application files you will create (SQL, PHP, Apache config)
-- `README.md` — quick reference
+- `Containerfile` - recipe for your LAMP container
+- `app/` - application files you will create (SQL, PHP, Apache config)
+- `README.md` - quick reference
 
 Unlike OS-focused Image Mode labs, you're building an actual application. The `app/` directory holds code, not just OS configuration.
 
@@ -124,7 +122,7 @@ Build the container image:
 podman build -t lamp-dev .
 ----
 
-You'll see installation steps as packages are installed. This takes ~2 minutes.
+You'll see installation steps as packages are installed. Give it a moment to finish.
 
 Once complete, verify the image exists:
 

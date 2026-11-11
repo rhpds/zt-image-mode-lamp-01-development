@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="640" viewBox="0 0 1000 640" role="img">
+  <rect width="1000" height="640" fill="#f7f7f8"/>
+  <text x="500" y="48" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="700" fill="#1f1f1f">Your Workspace</text>
+
+  <rect x="180" y="100" width="640" height="460" rx="16" fill="#ffffff" stroke="#424242" stroke-width="3"/>
+
+  <text x="220" y="160" font-family="Menlo, Monaco, monospace" font-size="20" font-weight="700" fill="#c62828">~/lamp-dev/</text>
+  <text x="250" y="210" font-family="Menlo, Monaco, monospace" font-size="18" fill="#1f1f1f">Containerfile</text>
+  <text x="520" y="210" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#666666">LAMP Image Recipe</text>
+  <text x="250" y="255" font-family="Menlo, Monaco, monospace" font-size="18" fill="#1f1f1f">README.md</text>
+  <text x="520" y="255" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#666666">Quick Reference</text>
+  <text x="250" y="300" font-family="Menlo, Monaco, monospace" font-size="18" font-weight="700" fill="#c62828">app/</text>
+  <text x="520" y="300" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#666666">Mounted at /app</text>
+  <text x="290" y="350" font-family="Menlo, Monaco, monospace" font-size="17" fill="#333333">db-setup.sql</text>
+  <text x="290" y="395" font-family="Menlo, Monaco, monospace" font-size="17" fill="#333333">index.php</text>
+  <text x="290" y="440" font-family="Menlo, Monaco, monospace" font-size="17" fill="#333333">myapp.conf</text>
+</svg>

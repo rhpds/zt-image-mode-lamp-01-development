@@ -1,37 +1,35 @@
 = Lab 1 of 2: Build a LAMP Development Container
 
-== Introduction
+== Welcome to Lab 1!
 
-**This is Lab 1 of 2** in the Image Mode series for application developers.
+Welcome! You're in the right place. In this lab you'll build a real database-backed LAMP application and learn the fast development workflow that Image Mode is built for.
+
+This is **Lab 1 of 2** for application developers. Lab 1 is hands-on and beginner-friendly. When you finish, you'll be ready for Lab 2, where you package the *same* app as a bootable production image.
 
 .Lab series roadmap
-image::lab-series-roadmap.jpg[Part 1 development workflow leads to Part 2 production bootable image,width=1000]
+image::lab-series-roadmap.svg[Part 1 development workflow leads to Part 2 production bootable image,width=1000]
 
-**Image Mode for RHEL** is a container-native way to deploy Red Hat Enterprise Linux. Instead of installing packages on a running system, you build the entire OS as a bootable container image. That bridges development teams (who work in containers) and operations teams (who need reliable OS deployments).
+**In this lab (Part 1):** Build the app and iterate quickly with volume mounts: edit on the host, see changes instantly.
 
-Most Image Mode labs target platform engineers. This series focuses on **packaging your application**.
+**In Lab 2 (Part 2):** Package that same application as an immutable bootable image (`zt-image-mode-lamp-02-bootable`).
 
-**Focus for this lab (Part 1):** Build a database-backed LAMP app and iterate quickly with volume mounts.
-
-**In Lab 2 (Part 2):** Package the *same* application as an immutable bootable image (`zt-image-mode-lamp-02-bootable`).
-
-*Time: ~28 minutes | Difficulty: Beginner*
+**Image Mode for RHEL** is a container-native way to deploy Red Hat Enterprise Linux. Instead of installing packages on a running system, you build the entire OS as a bootable container image. That bridges development teams (who work in containers) and operations teams (who need reliable OS deployments). Most Image Mode labs target platform engineers. This series focuses on **packaging your application**.
 
 == What You'll Build
 
 A database-backed web application using the **LAMP** stack (**L**inux + **A**pache + **M**ariaDB + **P**HP):
 
-- **Linux** — RHEL running in a container
-- **Apache** — serves HTTP requests
-- **MariaDB** — stores application data
-- **PHP** — queries the database and renders HTML
+- **Linux**: RHEL running in a container
+- **Apache**: serves HTTP requests
+- **MariaDB**: stores application data
+- **PHP**: queries the database and renders HTML
 
 == The Development Workflow
 
 **Volume mounts** make files on your host available inside the container instantly.
 
 .Volume mounts: edit on the host, appear in the container
-image::volume-mount-diagram.jpg[Host lamp-dev app directory mounted to container /app,width=1000]
+image::volume-mount-diagram.svg[Host lamp-dev app directory mounted to container /app,width=1000]
 
 **Why it matters:** Edit `index.php` on the host → refresh the browser → no rebuild, no restart.
 
@@ -39,16 +37,16 @@ image::volume-mount-diagram.jpg[Host lamp-dev app directory mounted to container
 
 == Who This Lab Is For
 
-**Most Image Mode labs teach:** OS policies, monitoring, updates — for platform engineers.
+**Most Image Mode labs teach:** OS policies, monitoring, updates (for platform engineers).
 
-**This lab teaches:** packaging a real web app, writing SQL/PHP/Apache config, and the mutable (dev) vs immutable (prod) workflow — for application developers.
+**This lab teaches:** packaging a real web app, writing SQL/PHP/Apache config, and the mutable (dev) vs immutable (prod) workflow (for application developers).
 
 == Key Concepts
 
-- **Container** — isolated environment with your app and dependencies
-- **Volume mount** — host directory shared into the container (`~/lamp-dev/app` → `/app`)
-- **Systemd** — starts MariaDB and Apache inside the container
-- **Bootable container** (Lab 2) — an image that boots as a full OS, not just an app process
+- **Container**: isolated environment with your app and dependencies
+- **Volume mount**: host directory shared into the container (`~/lamp-dev/app` → `/app`)
+- **Systemd**: starts MariaDB and Apache inside the container
+- **Bootable container** (Lab 2): an image that boots as a full OS, not just an app process
 
 == What You'll Learn
 

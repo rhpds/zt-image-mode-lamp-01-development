@@ -1,6 +1,6 @@
 = Build the LAMP Application
 
-*Lab 1 of 2 — Module 2*
+*Lab 1 of 2, Module 2*
 
 You have a LAMP container image from Module 1. Now build the application itself.
 
@@ -10,23 +10,21 @@ You have a LAMP container image from Module 1. Now build the application itself.
 3. Configure Apache to serve the app
 4. Confirm everything works together
 
-You create files on the host; volume mounts make them available inside the container — fast iteration, no rebuild.
-
-*Time: ~15 minutes*
+You create files on the host; volume mounts make them available inside the container. Fast iteration, no rebuild.
 
 == What You're Building With
 
 .How a request reaches your data
-image::lamp-architecture.jpg[Browser to Apache to PHP to MariaDB request flow,width=1000]
+image::lamp-architecture.svg[Browser to Apache to PHP to MariaDB request flow,width=1000]
 
-- **MariaDB** — stores data in tables
-- **Apache** — serves HTTP on port 80 (mapped to host `8080`)
-- **PHP** — connects to the database and generates HTML
+- **MariaDB** - stores data in tables
+- **Apache** - serves HTTP on port 80 (mapped to host `8080`)
+- **PHP** - connects to the database and generates HTML
 
 == Run the Development Container
 
 .Volume mount used by this container
-image::volume-mount-diagram.jpg[Host app directory mounted to container /app,width=1000]
+image::volume-mount-diagram.svg[Host app directory mounted to container /app,width=1000]
 
 Start the container with a volume mount:
 
@@ -371,15 +369,10 @@ Now click the **LAMP Application** tab at the top of the page to view the runnin
 - "Welcome to LAMP development!"
 - "Volume mounts make iteration fast."
 
-.Working LAMP application (expected UI)
+.Working LAMP Application (Expected UI)
 image::lamp-app-working.png[LAMP application showing database messages,width=1200]
 
-[TIP]
-====
-If you take a fresher Showroom screenshot, replace `lamp-app-working.png` in `content/modules/ROOT/images/`.
-====
-
-You've built a working LAMP application — database, PHP, and Apache are connected.
+You've built a working LAMP application: database, PHP, and Apache are connected.
 
 == Try Editing the Application
 
@@ -394,12 +387,15 @@ Refresh the **LAMP Application** browser tab.
 
 Notice: **The heading did not change.** The page still shows "LAMP Application - Development Mode".
 
-.Why edits did not appear (Module 2 problem → Module 3 fix)
-image::apache-path-gotcha.jpg[Apache serving stale copy in var www html versus live volume mount at app,width=1000]
+.Why Edits Did Not Appear
+image::apache-path-gotcha.svg[Apache serving stale copy in var www html versus live volume mount at app,width=1000]
+
+.Stale Heading After Host Edit
+image::lamp-app-stale-heading.png[Heading still shows LAMP Application Development Mode,width=1200]
 
 [IMPORTANT]
 ====
 You edited `~/lamp-dev/app/index.php` (the volume mount), but Apache is still serving the *copied* file from `/var/www/html`.
 
-**Module 3 fixes this** so edits appear instantly. Capture a Showroom screenshot of the unchanged heading and save it as `lamp-app-stale-heading.png` if you want a UI reference beside this diagram.
+**Module 3 fixes this** so edits appear instantly.
 ====
