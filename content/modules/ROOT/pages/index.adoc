@@ -7,7 +7,7 @@ Welcome! You're in the right place. In this lab you'll build a real database-bac
 This is **Lab 1 of 2** for application developers. Lab 1 is hands-on and beginner-friendly. When you finish, you'll be ready for Lab 2, where you package the *same* app as a bootable production image.
 
 .Lab series roadmap
-image::lab-series-roadmap.svg[Part 1 development workflow leads to Part 2 production bootable image,width=1000]
+image::lab-series-roadmap.jpg[Part 1 development workflow leads to Part 2 production bootable image,width=1000]
 
 **In this lab (Part 1):** Build the app and iterate quickly with volume mounts: edit on the host, see changes instantly.
 
@@ -29,7 +29,7 @@ A database-backed web application using the **LAMP** stack (**L**inux + **A**pac
 **Volume mounts** make files on your host available inside the container instantly.
 
 .Volume mounts: edit on the host, appear in the container
-image::volume-mount-diagram.svg[Host lamp-dev app directory mounted to container /app,width=1000]
+image::volume-mount-diagram.jpg[Host lamp-dev app directory mounted to container /app,width=1000]
 
 **Why it matters:** Edit `index.php` on the host → refresh the browser → no rebuild, no restart.
 

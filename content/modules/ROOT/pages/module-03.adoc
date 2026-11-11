@@ -156,7 +156,7 @@ You now have a development environment where:
 Fast for development, but mutable, unversioned, and hard to reproduce in production.
 
 .Ready for Lab 2
-image::lab-series-roadmap.svg[Part 1 complete; Part 2 packages the same app as a bootable image,width=1000]
+image::lab-series-roadmap.jpg[Part 1 complete; Part 2 packages the same app as a bootable image,width=1000]
 
 **Lab 2** (`zt-image-mode-lamp-02-bootable`) turns this into an immutable bootable deployment: same application files, baked into the image.
 

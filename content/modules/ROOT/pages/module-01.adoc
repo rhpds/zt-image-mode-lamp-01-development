@@ -66,7 +66,7 @@ ls -la
 *Look for:* `Containerfile`, `README.md`, and an `app/` directory.
 
 .Your development workspace
-image::workspace-tree.svg[Workspace tree with Containerfile README and app directory,width=800]
+image::workspace-tree.jpg[Workspace tree with Containerfile README and app directory,width=800]
 
 This workspace holds:
 - `Containerfile` - recipe for your LAMP container

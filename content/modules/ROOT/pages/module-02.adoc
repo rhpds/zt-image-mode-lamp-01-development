@@ -15,7 +15,7 @@ You create files on the host; volume mounts make them available inside the conta
 == What You're Building With
 
 .How a request reaches your data
-image::lamp-architecture.svg[Browser to Apache to PHP to MariaDB request flow,width=1000]
+image::lamp-architecture.jpg[Browser to Apache to PHP to MariaDB request flow,width=1000]
 
 - **MariaDB** - stores data in tables
 - **Apache** - serves HTTP on port 80 (mapped to host `8080`)
@@ -24,7 +24,7 @@ image::lamp-architecture.svg[Browser to Apache to PHP to MariaDB request flow,wi
 == Run the Development Container
 
 .Volume mount used by this container
-image::volume-mount-diagram.svg[Host app directory mounted to container /app,width=1000]
+image::volume-mount-diagram.jpg[Host app directory mounted to container /app,width=1000]
 
 Start the container with a volume mount:
 
